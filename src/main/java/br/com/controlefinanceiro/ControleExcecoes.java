@@ -85,4 +85,15 @@ public class ControleExcecoes  extends ResponseEntityExceptionHandler
 		return new ResponseEntity<>(objetoErro,HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
+	  @ExceptionHandler(MensagemException.class)
+	    protected ResponseEntity<Object> handleContaNaoEncontradaException(MensagemException ex) {
+	        String msg = ex.getMessage();
+
+	        ObjetoErro objetoErro = new ObjetoErro();
+	        objetoErro.setError(msg);
+	        objetoErro.setCode(HttpStatus.NOT_FOUND + " ==> " + HttpStatus.NOT_FOUND.getReasonPhrase());
+
+	        return new ResponseEntity<>(objetoErro, HttpStatus.NOT_FOUND);
+	    }
+	
 }
