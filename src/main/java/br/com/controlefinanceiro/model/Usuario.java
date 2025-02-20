@@ -31,6 +31,7 @@ import jakarta.persistence.UniqueConstraint;
 @Entity
 public class Usuario implements UserDetails {
 	
+	
 	/**
 	 * 
 	 */
