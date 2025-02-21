@@ -4,8 +4,11 @@ import java.util.Optional;
 
 import org.antlr.v4.runtime.misc.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,17 +35,17 @@ public class Conta {
 	@NotBlank(message = "A Nome da conta é obrigatorio!")
 	private String nm_conta;
 	
-    @ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_tipoconta", referencedColumnName = "id_tipoconta", nullable = false)
-    private Tipo_Conta tipoConta; // Agora corretamente mapeado para a entidade TipoConta
+    private Tipo_Conta id_tipoconta; // Agora corretamente mapeado para a entidade TipoConta
 
     // Getters e Setters
     public Tipo_Conta getTipoConta() {
-        return tipoConta;
+        return id_tipoconta;
     }
 
     public void setTipoConta(Tipo_Conta tipoConta) {
-        this.tipoConta = tipoConta;
+        this.id_tipoconta = tipoConta;
     }
 
 	public Long getId_conta() {
