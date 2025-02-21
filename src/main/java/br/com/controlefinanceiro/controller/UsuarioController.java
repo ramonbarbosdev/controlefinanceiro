@@ -3,6 +3,7 @@ package br.com.controlefinanceiro.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.controlefinanceiro.DTO.UsuarioDTO;
+import br.com.controlefinanceiro.model.Categoria;
 import br.com.controlefinanceiro.model.Usuario;
 import br.com.controlefinanceiro.repository.UsuarioRepository;
 
@@ -38,22 +41,27 @@ public class UsuarioController {
 	@GetMapping(value = "/{id}", produces = "application/json")
 	@CacheEvict(value = "cacheuser", allEntries = true)
 	@CachePut("cacheuser")
-	public ResponseEntity<Usuario> init(@PathVariable (value="id") Long id )
+	public ResponseEntity<UsuarioDTO> init(@PathVariable (value="id") Long id )
 	{
 		
 		Optional<Usuario> usuario =  usuarioRepository.findById(id);
 		
-		return new ResponseEntity(usuario.get(), HttpStatus.OK);
+		return new ResponseEntity<UsuarioDTO>(new UsuarioDTO(usuario.get()), HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/", produces = "application/json")
 	@CacheEvict(value = "cacheusuario", allEntries = true) //remover cache nao utilizado
 	@CachePut("cacheusuario") //atualizar cache
-	public ResponseEntity<List<Usuario>> usuario () throws InterruptedException
+	public ResponseEntity<List<?>> usuario () throws InterruptedException
 	{
-		List<Usuario> list = (List<Usuario>) usuarioRepository.findAll();
-				
-		return new ResponseEntity<List<Usuario>>(list, HttpStatus.OK);
+		 List<Usuario> usuarios = (List<Usuario>) usuarioRepository.findAll(); // Consulta todos os usuários
+    
+		// Mapeia cada objeto Usuario para UsuarioDTO
+		List<UsuarioDTO> usuariosDTO = usuarios.stream()
+				.map(usuario -> new UsuarioDTO(usuario)) // Usando o construtor para mapear
+				.collect(Collectors.toList()); // Coleta todos os DTOs em uma lista
+		
+		return new ResponseEntity<>(usuariosDTO, HttpStatus.OK);
 	}
 	
 	@PostMapping(value="/" , produces = "application/json")
