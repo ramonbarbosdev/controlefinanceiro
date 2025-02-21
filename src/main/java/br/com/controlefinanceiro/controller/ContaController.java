@@ -9,6 +9,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,13 +71,15 @@ public class ContaController {
 	{
 		try 
 		{
-			
-			Long proximoNumero = sequenciaService.gerarProximaSequencia(contaRepository, "cd_conta");
-	        String proximoNumeroStr = String.valueOf(proximoNumero); 
-	        System.out.println(proximoNumeroStr);
-			//objeto.setCd_conta(proximoNumeroStr);
-			Conta objetoSalvo = contaRepository.save(objeto);
-		
+
+	        if(objeto.getCd_conta().isEmpty() ||  objeto.getCd_conta() == null)
+	        {
+	        	Long proximoNumero = sequenciaService.gerarProximaSequencia(contaRepository, "cd_conta");
+		        String proximoNumeroStr = String.valueOf(proximoNumero); 
+	        	objeto.setCd_conta(proximoNumeroStr);
+	        }
+	        
+			Conta objetoSalvo =  contaRepository.save(objeto);
 			
 			return new ResponseEntity<Conta>(objetoSalvo, HttpStatus.OK);
 		} 
@@ -105,8 +108,13 @@ public class ContaController {
 	}
 	
 	
-	
-	
+	@DeleteMapping(value = "/{id_conta}", produces = "application/text" )
+	public String delete (@PathVariable("id_conta") Long id)
+	{
+		contaRepository.deleteById(id);
+		
+		return "Usuario deletado!";
+	}
 	
 	
 }
