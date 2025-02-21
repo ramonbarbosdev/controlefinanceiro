@@ -84,7 +84,7 @@ public class CategoriaController {
 	{
 		try 
 		{	
-				
+				//TO:DO - TENTAR SALVAR O OBJETO COM O ID DO TIPO DE CATEGORIA
 				Categoria objetoSalvo = objetoRepository.save(objeto);
 				
 				return new ResponseEntity<Categoria>(objetoSalvo, HttpStatus.OK);
