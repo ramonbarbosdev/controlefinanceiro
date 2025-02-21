@@ -7,6 +7,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
@@ -20,11 +23,24 @@ public class Conta {
 	private Long id_conta;
 	
 
-	@NotBlank(message = "A Conta é obrigatorio!")
+	@NotBlank(message = "A Codigo da conta é obrigatorio!")
 	@Column(unique = true, nullable = false)
 	private String cd_conta;
 	
+	@NotBlank(message = "A Nome da conta é obrigatorio!")
 	private String nm_conta;
+	
+	@NotBlank(message = "A Tipo da conta é obrigatorio!")
+	@JoinColumn(name = "id_tipoconta", referencedColumnName = "id_tipoconta")
+	private Long id_tipoconta;
+	
+	public Long getId_tipoconta() {
+		return id_tipoconta;
+	}
+
+	public void setId_tipoconta(Long id_tipoconta) {
+		this.id_tipoconta = id_tipoconta;
+	}
 
 	public Long getId_conta() {
 		return id_conta;
