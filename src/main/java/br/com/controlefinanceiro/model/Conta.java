@@ -38,6 +38,9 @@ public class Conta {
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_tipoconta", referencedColumnName = "id_tipoconta", nullable = false)
     private Tipo_Conta id_tipoconta; // Agora corretamente mapeado para a entidade TipoConta
+	
+
+	private Boolean fl_ativo;
 
     // Getters e Setters
     public Tipo_Conta getTipoConta() {

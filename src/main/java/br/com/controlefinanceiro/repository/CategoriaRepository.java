@@ -4,12 +4,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import br.com.controlefinanceiro.model.Categoria;
 import br.com.controlefinanceiro.model.Conta;
-import br.com.controlefinanceiro.model.Tipo_Categoria;
-import br.com.controlefinanceiro.model.Tipo_Conta;
 
 @Repository
-public interface TipoContaRepository  extends CrudRepository<Tipo_Conta, Long>  {
+public interface CategoriaRepository  extends CrudRepository<Categoria, Long>  {
 	
+	 
 
 }

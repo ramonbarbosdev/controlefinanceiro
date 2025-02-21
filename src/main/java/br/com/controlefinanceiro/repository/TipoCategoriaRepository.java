@@ -9,7 +9,7 @@ import br.com.controlefinanceiro.model.Tipo_Categoria;
 import br.com.controlefinanceiro.model.Tipo_Conta;
 
 @Repository
-public interface TipoContaRepository  extends CrudRepository<Tipo_Conta, Long>  {
+public interface TipoCategoriaRepository  extends CrudRepository<Tipo_Categoria, Long>  {
 	
 
 }
