@@ -1,5 +1,7 @@
 package br.com.controlefinanceiro.model;
 
+import java.util.Optional;
+
 import org.antlr.v4.runtime.misc.NotNull;
 
 import jakarta.persistence.Column;
@@ -30,17 +32,18 @@ public class Conta {
 	@NotBlank(message = "A Nome da conta é obrigatorio!")
 	private String nm_conta;
 	
-	@NotBlank(message = "A Tipo da conta é obrigatorio!")
-	@JoinColumn(name = "id_tipoconta", referencedColumnName = "id_tipoconta")
-	private Long id_tipoconta;
-	
-	public Long getId_tipoconta() {
-		return id_tipoconta;
-	}
+    @ManyToOne
+    @JoinColumn(name = "id_tipoconta", referencedColumnName = "id_tipoconta", nullable = false)
+    private Tipo_Conta tipoConta; // Agora corretamente mapeado para a entidade TipoConta
 
-	public void setId_tipoconta(Long id_tipoconta) {
-		this.id_tipoconta = id_tipoconta;
-	}
+    // Getters e Setters
+    public Tipo_Conta getTipoConta() {
+        return tipoConta;
+    }
+
+    public void setTipoConta(Tipo_Conta tipoConta) {
+        this.tipoConta = tipoConta;
+    }
 
 	public Long getId_conta() {
 		return id_conta;

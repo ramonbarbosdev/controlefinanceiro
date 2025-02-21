@@ -19,8 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.controlefinanceiro.MensagemException;
+import br.com.controlefinanceiro.DTO.ContaDTO;
 import br.com.controlefinanceiro.model.Conta;
+import br.com.controlefinanceiro.model.Tipo_Conta;
 import br.com.controlefinanceiro.repository.ContaRepository;
+import br.com.controlefinanceiro.repository.TipoContaRepository;
 import br.com.controlefinanceiro.service.SequenciaService;
 
 @RestController 
@@ -29,6 +32,9 @@ public class ContaController {
 
 	@Autowired
 	private ContaRepository contaRepository;
+	
+	@Autowired
+	private TipoContaRepository tipoContaRepository;
 	
 	@Autowired
 	private SequenciaService sequenciaService;
@@ -67,17 +73,31 @@ public class ContaController {
 	}
 	
 	@PostMapping(value = "/", produces = "application/json")
-	public ResponseEntity<?> cadastrar(@RequestBody Conta objeto)
+	public ResponseEntity<?> cadastrar(@RequestBody ContaDTO objetoDTO)
 	{
 		try 
 		{
-
-	        if(objeto.getCd_conta().isEmpty() ||  objeto.getCd_conta() == null)
+			
+			Conta objeto = new Conta();
+			
+			if(objetoDTO.getCd_conta().isEmpty() ||  objetoDTO.getCd_conta() == null)
 	        {
 	        	Long proximoNumero = sequenciaService.gerarProximaSequencia(contaRepository, "cd_conta");
 		        String proximoNumeroStr = String.valueOf(proximoNumero); 
 	        	objeto.setCd_conta(proximoNumeroStr);
 	        }
+			else
+			{
+			    objeto.setCd_conta(objetoDTO.getCd_conta());
+			}
+			
+	
+			objeto.setNm_conta(objetoDTO.getNm_conta());
+			
+			 Tipo_Conta tipoConta = tipoContaRepository.findById(objetoDTO.getId_tipoconta())
+			            .orElseThrow(() -> new RuntimeException("Tipo de conta não encontrada"));
+	       
+			objeto.setTipoConta(tipoConta);
 	        
 			Conta objetoSalvo =  contaRepository.save(objeto);
 			
