@@ -10,6 +10,10 @@ public class CategoriaDTO   implements Serializable{
     private Long id_tipocategoria;
     private String nm_categoria;
 
+
+	public CategoriaDTO() {} // Construtor necessário para serialização
+
+	
 	public CategoriaDTO(Categoria categoria) 
 	{
 		this.id_categoria = categoria.getId_categoria();

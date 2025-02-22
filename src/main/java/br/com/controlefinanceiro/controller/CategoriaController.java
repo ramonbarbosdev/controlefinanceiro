@@ -66,7 +66,8 @@ public class CategoriaController {
 		return new ResponseEntity<CategoriaDTO>(new CategoriaDTO(objeto.get()), HttpStatus.OK);
 		
 	}
-	
+
+		
 	@GetMapping(value = "/", produces = "application/json")
 	public ResponseEntity<List<?>> obterTodos() throws InterruptedException {
 		
@@ -78,24 +79,29 @@ public class CategoriaController {
 		
 		return new ResponseEntity<>(objetoDTO, HttpStatus.OK);
 	}
-	
-	@PostMapping(value = "/", produces = "application/json")
-	public ResponseEntity<?> cadastrar(@RequestBody Categoria objeto) throws Exception
-	{
-		try 
-		{	
-				//TO:DO - TENTAR SALVAR O OBJETO COM O ID DO TIPO DE CATEGORIA
-				Categoria objetoSalvo = objetoRepository.save(objeto);
-				
-				return new ResponseEntity<Categoria>(objetoSalvo, HttpStatus.OK);
-		} 
-		catch (Exception e)
-		{	
-			 throw new MensagemException( e.getMessage());
-		}
 
+	@PostMapping(value = "/", produces = "application/json")
+	public ResponseEntity<?> cadastrar(@RequestBody CategoriaDTO dto) throws Exception {
+		try {
+			// Converter DTO para Categoria (mas ainda sem TipoCategoria)
+			Categoria categoria = modelMapper.map(dto, Categoria.class);
+			
+			// Buscar TipoCategoria no banco usando o ID recebido no DTO
+			Tipo_Categoria tipo = tipoCategoriaRepository.findById(dto.getId_tipocategoria())
+				.orElseThrow(() -> new MensagemException("Tipo de Categoria não encontrado"));
+			
+			// Definir o TipoCategoria na Categoria
+			categoria.setTipoCategoria(tipo);
+			
+			// Salvar a Categoria no banco
+			Categoria objetoSalvo = objetoRepository.save(categoria);
+			
+			return new ResponseEntity<>(objetoSalvo, HttpStatus.OK);
+		} catch (Exception e) {    
+			throw new MensagemException(e.getMessage());
+		}
 	}
-	
+
 	@PutMapping(value = "/", produces = "application/json")
 	public ResponseEntity<?> atualizar(@RequestBody Categoria objeto)
 	{
@@ -121,6 +127,35 @@ public class CategoriaController {
 		
 		return "Usuario deletado!";
 	}
+
+
+	//Tipo Categorias
+	@GetMapping(value = "/tipocategoria/")
+	public ResponseEntity<?> obterTipoCategoria()  throws Exception
+	{
+		List<Tipo_Categoria> objetos = (List<Tipo_Categoria>) tipoCategoriaRepository.findAll();
+		
+		
+		return new ResponseEntity<>(objetos, HttpStatus.OK);
+		
+	}
+
+	
+	@GetMapping(value = "/tipocategoria/{id_tipocategoria}")
+	public ResponseEntity<?> obterTipoCategoriaId(@PathVariable(value ="id_tipocategoria") Long id) throws Exception
+	{
+		Optional<Tipo_Categoria> objeto = tipoCategoriaRepository.findById(id);
+		
+		if(objeto.isEmpty())
+		{
+			throw new MensagemException("Objeto não encontrada!");
+		}
+		
+		return new ResponseEntity<Tipo_Categoria>(objeto.get(), HttpStatus.OK);
+		
+	}
+	
+
 	
 	
 }
