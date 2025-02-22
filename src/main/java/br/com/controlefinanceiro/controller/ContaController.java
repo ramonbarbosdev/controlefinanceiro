@@ -64,17 +64,20 @@ public class ContaController {
 	public ResponseEntity<?> obterId(@PathVariable(value ="id_conta") Long id) throws Exception
 	{
 		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+		Class<?> objetoDTO = utils.obterClasseDtoEntidade(this.model);
 
 		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
 
-		Optional<Object> objeto = repository.findById(id);
+		Optional<?> objeto = repository.findById(id);
 		
 		if(objeto.isEmpty())
 		{
 			throw new MensagemException("Registro não encontrado!");
 		}
 		
-		return new ResponseEntity<Object>( objeto.get(), HttpStatus.OK);
+		Object dto = utils.converterDTO(objeto.get(), objetoDTO);
+
+		return new ResponseEntity<Object>( dto, HttpStatus.OK);
 	}
 	
 	@GetMapping(value = "/", produces = "application/json")
@@ -82,27 +85,28 @@ public class ContaController {
 	@CachePut("cacheconta")
 	public ResponseEntity<List<?>> obterTodos() throws Exception
 	{
-
 		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
 		
-		Class<?> dtoClass = utils.obterClasseDtoEntidade(this.model);
+		Class<?> objetoDTO = utils.obterClasseDtoEntidade(this.model);
 
 		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
 
-		// TO:DO - implementar dinamismo para obter todos os registros
-		List<Conta> objetos = (List<Conta>) repository.findAll();
+		List<Object> objetos = (List<Object>) repository.findAll();
 
 	    if (objetos.isEmpty())
 	    {
 	        throw new MensagemException("Nenhuma conta encontrada!");
 	    }
-   
-		List<ContaDTO> objetoDTO = objetos.stream()
-												.map(objeto -> new ContaDTO(objeto)) 
-												.collect(Collectors.toList()); 
 
-	    return new ResponseEntity<>(objetoDTO, HttpStatus.OK);
+		List<?> listDTO = objetos.stream()
+									.map(objeto -> utils.converterDTO(objeto, objetoDTO))
+									.collect(Collectors.toList());
+
+	    return new ResponseEntity<>(listDTO, HttpStatus.OK);
 	}
+
+	// Método para converter a entidade em DTO dinamicamente
+		
 	
 	// @PostMapping(value = "/", produces = "application/json")
 	// public ResponseEntity<?> cadastrar(@RequestBody ContaDTO dto) throws Exception

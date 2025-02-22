@@ -97,44 +97,14 @@ public class Utils
 
 
 
-    public <T> T mapEntityToDto(Object entity, Class<T> dtoClass) throws Exception {
-        // Cria uma nova instância do DTO
-        T dto = dtoClass.getDeclaredConstructor().newInstance();
-        
-        // Percorre as propriedades da entidade
-        for (Field entityField : entity.getClass().getDeclaredFields()) {
-            entityField.setAccessible(true); // Permite acesso a campos privados
-            
-            // Verifica se o campo da entidade tem um campo correspondente no DTO
-            try {
-                Field dtoField = dtoClass.getDeclaredField(entityField.getName());
-                dtoField.setAccessible(true);  // Permite acesso ao campo do DTO
-                
-                Object value = entityField.get(entity); // Obtém o valor do campo da entidade
-                
-                // Se o valor for uma entidade relacionada, mapeia de forma recursiva
-                if (value != null && !isPrimitiveOrWrapper(value.getClass())) {
-                    // Aqui você pode chamar um método recursivo para mapear objetos relacionados
-                    dtoField.set(dto, mapEntityToDto(value, dtoField.getType()));
-                } else {
-                    // Caso contrário, apenas mapeia o valor simples
-                    dtoField.set(dto, value);
-                }
-            } catch (Exception e) {
-                // Se o campo não existir no DTO, ignora (ou loga o erro, se necessário)
-                continue;
-            }
+    public Object converterDTO(Object entidade, Class<?> dtoClass)
+    {
+        try {
+            // Procura um construtor que recebe a entidade como argumento
+            return dtoClass.getDeclaredConstructor(entidade.getClass()).newInstance(entidade);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao converter entidade para DTO", e);
         }
-        
-        return dto;
     }
-    
-    private boolean isPrimitiveOrWrapper(Class<?> clazz) {
-        return clazz.isPrimitive() || clazz == String.class || 
-               clazz == Integer.class || clazz == Long.class || 
-               clazz == Double.class || clazz == Boolean.class;
-    }
-    
-
 
 }
