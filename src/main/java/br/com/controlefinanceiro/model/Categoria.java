@@ -9,7 +9,7 @@ public class Categoria {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "categoria_seq")
     private Long id_categoria;
 
     @NotNull(message = "Tipo de categoria é obrigatório!")

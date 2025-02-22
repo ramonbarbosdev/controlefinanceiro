@@ -19,7 +19,7 @@ public class Tipo_Categoria {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "categoria_seq")
 	private Long id_tipocategoria;
 	
 	@NotBlank(message = "Coluna 'nm_tipocategoria' é obrigatorio!")

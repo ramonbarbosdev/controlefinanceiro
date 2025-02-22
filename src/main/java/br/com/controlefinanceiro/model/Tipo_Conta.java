@@ -16,7 +16,7 @@ public class Tipo_Conta {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "categoria_seq")
 	private Long id_tipoconta;
 	
 	@NotBlank(message = "A Codigo do tipo é obrigatorio!")

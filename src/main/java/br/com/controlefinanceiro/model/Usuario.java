@@ -38,7 +38,7 @@ public class Usuario implements UserDetails {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "categoria_seq")
 	private Long id;
 	
 	@Column(unique = true)
