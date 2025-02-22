@@ -94,8 +94,10 @@ public class ContaController {
 			Conta objeto = modelMapper.map(dto, Conta.class);
 			
 	
+			validacaoService.validaExistenciaRegistro(objeto, "id_tipoconta", tipoContaRepository);
 		    Tipo_Conta tipo = tipoContaRepository.findById(dto.getId_tipoconta())
 		                 .orElseThrow(() -> new RuntimeException("Tipo de conta não encontrada"));
+
 			
             objeto.setTipoConta(tipo);
 

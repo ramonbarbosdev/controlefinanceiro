@@ -1,7 +1,10 @@
 package br.com.controlefinanceiro.service;
 
 import java.lang.reflect.Field;
+import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -9,8 +12,7 @@ public class ValidacaoService
 {
     
    /**
-     * Valida o objeto de forma genérica, verificando se o campo identificado como chave primária 
-     * não foi informado durante o cadastro. 
+     * Valida o objeto de forma genérica, 
      * 
      * @param objeto O objeto que será validado. Pode ser qualquer entidade ou objeto que possua uma chave primária.
      * @param primaryKey O nome do campo que representa a chave primária no objeto (por exemplo, "id_conta", "id_categoria").
@@ -64,5 +66,24 @@ public class ValidacaoService
 
         return fieldValue;
     }
+
+
+   public <T> void validaExistenciaRegistro(Object objeto, String primaryKey, CrudRepository<T, Long> repository) throws Exception 
+    {
+        // Obtendo o valor do campo que é a chave primária
+        Object valorRelacionado = obterCampo(objeto, primaryKey);
+
+        // Usando o repository para buscar o registro
+        Optional<T> resultado = repository.findById((Long) valorRelacionado);
+
+        // Se o resultado for vazio, significa que o registro não foi encontrado
+        if (resultado.isEmpty()) {
+            throw new Exception("Registro não encontrado para o valor " + valorRelacionado);
+        }
+
+  
+    }
+
+    
 
 }
