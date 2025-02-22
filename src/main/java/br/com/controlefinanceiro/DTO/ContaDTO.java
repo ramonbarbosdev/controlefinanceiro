@@ -1,5 +1,7 @@
 package br.com.controlefinanceiro.DTO;
 
+import br.com.controlefinanceiro.model.Conta;
+
 public class ContaDTO {
 
 	 private Long id_conta;
@@ -7,7 +9,15 @@ public class ContaDTO {
     private String nm_conta;
     private Long id_tipoconta;
     
-    
+    public ContaDTO() {} // Construtor necessário para serialização
+
+	public ContaDTO(Conta conta) {
+		this.id_conta = conta.getId_conta();
+		this.cd_conta = conta.getCd_conta();
+		this.nm_conta = conta.getNm_conta();
+		this.id_tipoconta = conta.getTipoConta().getId_tipoconta();	
+	}
+
 	public Long getId_conta() {
 		return id_conta;
 	}

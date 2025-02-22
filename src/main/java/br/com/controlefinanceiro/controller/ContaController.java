@@ -20,12 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.controlefinanceiro.MensagemException;
+import br.com.controlefinanceiro.DTO.CategoriaDTO;
 import br.com.controlefinanceiro.DTO.ContaDTO;
 import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.model.Tipo_Conta;
 import br.com.controlefinanceiro.repository.ContaRepository;
 import br.com.controlefinanceiro.repository.TipoContaRepository;
 import br.com.controlefinanceiro.service.SequenciaService;
+import br.com.controlefinanceiro.service.ValidacaoService;
 import ch.qos.logback.core.model.Model;
 import java.util.stream.Collectors;
 
@@ -36,78 +38,71 @@ import java.util.stream.Collectors;
 public class ContaController {
 
 	@Autowired
-	private ContaRepository contaRepository;
+	private ContaRepository objetoRepository;
 	
 	@Autowired
 	private TipoContaRepository tipoContaRepository;
 	
 	@Autowired
 	private SequenciaService sequenciaService;
+
+	@Autowired
+	private ValidacaoService validacaoService ;
 	
    
 	private ModelMapper modelMapper = new ModelMapper();  
 
 	
 	@GetMapping(value = "/{id_conta}")
-	public ResponseEntity<Conta> obterId(@PathVariable(value ="id_conta") Long id) throws Exception
+	public ResponseEntity<?> obterId(@PathVariable(value ="id_conta") Long id) throws Exception
 	{
-		Optional<Conta> objeto = contaRepository.findById(id);
+		Optional<Conta> objeto = objetoRepository.findById(id);
 		
 		if(objeto.isEmpty())
 		{
 			throw new MensagemException("Conta não encontrada!");
 		}
 		
-		return new ResponseEntity(objeto.get(), HttpStatus.OK);
+		return new ResponseEntity<ContaDTO>(new ContaDTO(objeto.get()), HttpStatus.OK);
 		
 	}
 	
 	@GetMapping(value = "/", produces = "application/json")
 	@CacheEvict(value = "cacheconta", allEntries = true)
 	@CachePut("cacheconta")
-	public ResponseEntity<List<ContaDTO>> obterTodos() throws InterruptedException {
+	public ResponseEntity<List<?>> obterTodos() throws InterruptedException {
 		
-	    List<Conta> objetos = (List<Conta>) contaRepository.findAll();
+	    List<Conta> objetos = (List<Conta>) objetoRepository.findAll();
 
 	    if (objetos.isEmpty())
 	    {
 	        throw new MensagemException("Nenhuma conta encontrada!");
 	    }
+   
+		List<ContaDTO> objetoDTO = objetos.stream()
+												.map(objeto -> new ContaDTO(objeto)) 
+												.collect(Collectors.toList()); 
 
-	   
-	    List<ContaDTO> objetosDTO = objetos.stream()
-	            .map(conta -> {
-	                ContaDTO contaDTO = modelMapper.map(conta, ContaDTO.class);
-	                contaDTO.setId_tipoconta(conta.getTipoConta().getId_tipoconta()); 
-	                return contaDTO;
-	            })
-	            .collect(Collectors.toList());
-
-	    return new ResponseEntity<>(objetosDTO, HttpStatus.OK);
+	    return new ResponseEntity<>(objetoDTO, HttpStatus.OK);
 	}
 	
 	@PostMapping(value = "/", produces = "application/json")
-	public ResponseEntity<?> cadastrar(@RequestBody ContaDTO objetoDTO) throws Exception
+	public ResponseEntity<?> cadastrar(@RequestBody ContaDTO dto) throws Exception
 	{
 		try 
 		{		
-			Conta objeto = modelMapper.map(objetoDTO, Conta.class);
+			Conta objeto = modelMapper.map(dto, Conta.class);
 			
-			/*
-			if(objetoDTO.getCd_conta().isEmpty() ||  objetoDTO.getCd_conta() == null)
-	        {
-	        	Long proximoNumero = sequenciaService.gerarProximaSequencia(contaRepository, "cd_conta");
-		        String proximoNumeroStr = String.valueOf(proximoNumero); 
-	        	objeto.setCd_conta(proximoNumeroStr);
-	        }
-			*/
 	
-		    Tipo_Conta tipoConta = tipoContaRepository.findById(objetoDTO.getId_tipoconta())
+		    Tipo_Conta tipo = tipoContaRepository.findById(dto.getId_tipoconta())
 		                 .orElseThrow(() -> new RuntimeException("Tipo de conta não encontrada"));
-		  
-            objeto.setTipoConta(tipoConta);
+			
+            objeto.setTipoConta(tipo);
 
-	        Conta objetoSalvo = contaRepository.save(objeto);
+
+			validacaoService.validarCadastroGeral(objeto, "id_conta");
+	
+	        Conta objetoSalvo = objetoRepository.save(objeto);
 			
 			return new ResponseEntity<Conta>(objetoSalvo, HttpStatus.OK);
 		} 
@@ -119,12 +114,20 @@ public class ContaController {
 	}
 	
 	@PutMapping(value = "/", produces = "application/json")
-	public ResponseEntity<?> atualizar(@RequestBody Conta objeto)
+	public ResponseEntity<?> atualizar(@RequestBody ContaDTO dto) throws Exception
 	{
 		try 
 		{
-			Conta objetoSalvo = contaRepository.save(objeto);
-			
+			Conta objeto = modelMapper.map(dto, Conta.class);
+	
+		    Tipo_Conta tipo = tipoContaRepository.findById(dto.getId_tipoconta())
+		                 		.orElseThrow(() -> new RuntimeException("Tipo de conta não encontrada"));
+
+								
+		  
+            objeto.setTipoConta(tipo);
+
+	        Conta objetoSalvo = objetoRepository.save(objeto);
 			
 			return new ResponseEntity<Conta>(objetoSalvo, HttpStatus.OK);
 		} 
@@ -139,7 +142,7 @@ public class ContaController {
 	@DeleteMapping(value = "/{id_conta}", produces = "application/text" )
 	public String delete (@PathVariable("id_conta") Long id)
 	{
-		contaRepository.deleteById(id);
+		objetoRepository.deleteById(id);
 		
 		return "Usuario deletado!";
 	}

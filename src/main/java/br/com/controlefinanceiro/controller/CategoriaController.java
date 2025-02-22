@@ -84,17 +84,17 @@ public class CategoriaController {
 	public ResponseEntity<?> cadastrar(@RequestBody CategoriaDTO dto) throws Exception {
 		try {
 			// Converter DTO para Categoria (mas ainda sem TipoCategoria)
-			Categoria categoria = modelMapper.map(dto, Categoria.class);
+			Categoria objeto = modelMapper.map(dto, Categoria.class);
 			
 			// Buscar TipoCategoria no banco usando o ID recebido no DTO
 			Tipo_Categoria tipo = tipoCategoriaRepository.findById(dto.getId_tipocategoria())
 				.orElseThrow(() -> new MensagemException("Tipo de Categoria não encontrado"));
 			
 			// Definir o TipoCategoria na Categoria
-			categoria.setTipoCategoria(tipo);
+			objeto.setTipoCategoria(tipo);
 			
 			// Salvar a Categoria no banco
-			Categoria objetoSalvo = objetoRepository.save(categoria);
+			Categoria objetoSalvo = objetoRepository.save(objeto);
 			
 			return new ResponseEntity<>(objetoSalvo, HttpStatus.OK);
 		} catch (Exception e) {    
