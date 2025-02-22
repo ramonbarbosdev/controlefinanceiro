@@ -1,13 +1,16 @@
 package br.com.controlefinanceiro.controller;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -50,7 +53,9 @@ public class ContaController {
 	@Autowired
 	private ValidacaoService validacaoService ;
 	
-   
+	//atributos
+	private Class<?> model = Conta.class;
+	private String primaryKey = "id_conta";
 	private ModelMapper modelMapper = new ModelMapper();  
 
 	
@@ -96,7 +101,7 @@ public class ContaController {
 			
 		    utils.obterObjetoRelacionamento(objeto,dto,"id_tipoconta", tipoContaRepository, "setTipoConta", Tipo_Conta.class);
 
-			validacaoService.validarCadastroGeral(objeto, "id_conta");
+			validacaoService.validarCadastroGeral(objeto, primaryKey);
 	
 	        Conta objetoSalvo = objetoRepository.save(objeto);
 			
@@ -108,6 +113,34 @@ public class ContaController {
 		}
 
 	}
+
+	@PostMapping(value = "/cadastro/", produces = "application/json")
+	public ResponseEntity<?> cadastroDinamico(@RequestBody Object dto) throws Exception
+	{
+		try
+		{
+			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+		
+			Object objetoDTO = utils.obterClasseDtoEntidade(this.model);
+
+			modelMapper.map(dto, objetoDTO);
+			modelMapper.map(objetoDTO, objetoModel);
+
+			//modificavel
+			utils.obterObjetoRelacionamento(objetoModel,objetoDTO,"id_tipoconta", tipoContaRepository, "setTipoConta", Tipo_Conta.class);
+
+			validacaoService.validarCadastroGeral(objetoModel, this.primaryKey);
+
+			CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+			Object objetoSalvo = repository.save(objetoModel);
+
+			return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
+		}
+		catch (Exception e)
+		{
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+	}
 	
 	@PutMapping(value = "/", produces = "application/json")
 	public ResponseEntity<?> atualizar(@RequestBody ContaDTO dto) throws Exception
@@ -115,14 +148,9 @@ public class ContaController {
 		try 
 		{
 			Conta objeto = modelMapper.map(dto, Conta.class);
+			
+		    utils.obterObjetoRelacionamento(objeto,dto,"id_tipoconta", tipoContaRepository, "setTipoConta", Tipo_Conta.class);
 	
-		    Tipo_Conta tipo = tipoContaRepository.findById(dto.getId_tipoconta())
-		                 		.orElseThrow(() -> new RuntimeException("Tipo de conta não encontrada"));
-
-								
-		  
-            objeto.setTipoConta(tipo);
-
 	        Conta objetoSalvo = objetoRepository.save(objeto);
 			
 			return new ResponseEntity<Conta>(objetoSalvo, HttpStatus.OK);

@@ -2,13 +2,24 @@ package br.com.controlefinanceiro.service;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+
+import br.com.controlefinanceiro.DTO.ContaDTO;
+import br.com.controlefinanceiro.model.Conta;
 
 @Service
 public class Utils
 {
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
     
      public <T> Object obterObjetoRelacionamento(Object objeto, Object dto, String primaryKey, CrudRepository<T, Long> repository, String methodName, Class<?> parameterType) throws Exception
     {
@@ -51,6 +62,46 @@ public class Utils
 
         return fieldValue;
     }
+
+    public CrudRepository obterRepositoryEntidade(Object entity)
+    {
+        String repositoryBeanName = entity.getClass().getSimpleName() + "Repository";
+        return (CrudRepository) applicationContext.getBean("contaRepository");
+    }
+
+    public  Object obterClasseDtoEntidade(Class<?> model) throws Exception
+    {
+        String entityClassName = model.getSimpleName();
+    
+        String basePackage = "br.com.controlefinanceiro.DTO";  // Altere para o pacote real onde seus DTOs estão
+    
+        String fullClassName = basePackage + "." + entityClassName + "DTO";
+    
+        Class<?> dtoClass = Class.forName(fullClassName);
+        Object objetoDTO = dtoClass.getDeclaredConstructor().newInstance();
+        
+        return objetoDTO;
+    }
+    
+    
+    
+    
+    // public CrudRepository obterRepositoryEntidade(Object entity) {
+    //     String repositoryBeanName = entity.getClass().getSimpleName().toLowerCase() + "Repository";
+        
+    //     // Log para imprimir todos os beans do tipo ContaRepository
+    //     System.out.println("Beans no contexto:");
+    //     for (String beanName : applicationContext.getBeanDefinitionNames()) {
+    //         System.out.println(beanName);
+    //     }
+    
+    //     try {
+    //         return (CrudRepository) applicationContext.getBean(repositoryBeanName);
+    //     } catch (Exception e) {
+    //         throw new RuntimeException("Repositório não encontrado para a entidade: " + entity.getClass().getSimpleName());
+    //     }
+    // }
+    
 
 
 
