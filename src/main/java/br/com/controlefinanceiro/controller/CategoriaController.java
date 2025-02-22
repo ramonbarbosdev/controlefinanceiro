@@ -64,7 +64,6 @@ public class CategoriaController {
 	private ModelMapper modelMapper = new ModelMapper();  
 	
 
-	
 	@GetMapping(value = "/{id_categoria}")
 	public ResponseEntity<?> obterId(@PathVariable(value ="id_categoria") Long id) throws Exception
 	{
@@ -117,7 +116,7 @@ public class CategoriaController {
 		{
 			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
 		
-			Object objetoDTO = utils.obterClasseDtoEntidade(this.model);
+			Object objetoDTO = utils.obterObjetoDtoEntidade(this.model);
 
 			modelMapper.map(dto, objetoDTO);
 			modelMapper.map(objetoDTO, objetoModel);
@@ -140,14 +139,25 @@ public class CategoriaController {
 	
 
 	@PutMapping(value = "/", produces = "application/json")
-	public ResponseEntity<?> atualizar(@RequestBody Categoria objeto)
+	public ResponseEntity<?> atualizar(@RequestBody Object dto)  throws Exception
 	{
 		try 
 		{
-			Categoria objetoSalvo = objetoRepository.save(objeto);
+			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+		
+			Object objetoDTO = utils.obterObjetoDtoEntidade(this.model);
+
+			CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+
+			modelMapper.map(dto, objetoDTO);
+			modelMapper.map(objetoDTO, objetoModel);
+
+			//modificavel
+			utils.obterObjetoRelacionamento(objetoModel,objetoDTO,"id_tipocategoria", tipoCategoriaRepository, "setTipoCategoria", Tipo_Categoria.class);
 			
-			
-			return new ResponseEntity<Categoria>(objetoSalvo, HttpStatus.OK);
+			Object objetoSalvo = repository.save(objetoModel);
+
+			return new ResponseEntity<Object>(objetoSalvo, HttpStatus.OK);
 		} 
 		catch (Exception e)
 		{	
@@ -158,40 +168,18 @@ public class CategoriaController {
 	
 	
 	@DeleteMapping(value = "/{id_categoria}", produces = "application/text" )
-	public String delete (@PathVariable("id_categoria") Long id)
+	public String delete (@PathVariable("id_categoria") Long id) throws Exception
 	{
-		objetoRepository.deleteById(id);
+		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
 		
-		return "Usuario deletado!";
-	}
+		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
 
+		repository.deleteById(id);
 
-	//Tipo Categorias
-	@GetMapping(value = "/tipocategoria/")
-	public ResponseEntity<?> obterTipoCategoria()  throws Exception
-	{
-		List<Tipo_Categoria> objetos = (List<Tipo_Categoria>) tipoCategoriaRepository.findAll();
-		
-		
-		return new ResponseEntity<>(objetos, HttpStatus.OK);
-		
-	}
-
+		return "Registro deletado!";
 	
-	@GetMapping(value = "/tipocategoria/{id_tipocategoria}")
-	public ResponseEntity<?> obterTipoCategoriaId(@PathVariable(value ="id_tipocategoria") Long id) throws Exception
-	{
-		Optional<Tipo_Categoria> objeto = tipoCategoriaRepository.findById(id);
-		
-		if(objeto.isEmpty())
-		{
-			throw new MensagemException("Objeto não encontrada!");
-		}
-		
-		return new ResponseEntity<Tipo_Categoria>(objeto.get(), HttpStatus.OK);
-		
 	}
-	
+
 
 	
 	

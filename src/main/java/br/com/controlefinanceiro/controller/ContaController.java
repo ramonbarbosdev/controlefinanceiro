@@ -105,9 +105,6 @@ public class ContaController {
 	    return new ResponseEntity<>(listDTO, HttpStatus.OK);
 	}
 
-	// Método para converter a entidade em DTO dinamicamente
-		
-	
 	// @PostMapping(value = "/", produces = "application/json")
 	// public ResponseEntity<?> cadastrar(@RequestBody ContaDTO dto) throws Exception
 	// {
@@ -165,7 +162,7 @@ public class ContaController {
 		{
 			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
 		
-			Object objetoDTO = utils.obterClasseDtoEntidade(this.model);
+			Object objetoDTO = utils.obterObjetoDtoEntidade(this.model);
 
 			CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
 
@@ -201,5 +198,7 @@ public class ContaController {
 		return "Registro deletado!";
 	}
 	
+
+		
 	
 }

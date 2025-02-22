@@ -22,7 +22,6 @@ public class CategoriaDTO   implements Serializable{
 	}
 	
     
-    
 	public Long getId_categoria() {
 		return id_categoria;
 	}
