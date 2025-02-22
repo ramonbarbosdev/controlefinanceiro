@@ -3,7 +3,9 @@ package br.com.controlefinanceiro.service;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,44 +67,74 @@ public class Utils
 
     public CrudRepository obterRepositoryEntidade(Object entity)
     {
-        String repositoryBeanName = entity.getClass().getSimpleName() + "Repository";
-        return (CrudRepository) applicationContext.getBean("contaRepository");
+        String entityName = entity.getClass().getSimpleName();
+    
+        //convertendo a primeira letra para minúscula
+        String repositoryBeanName = 
+            entityName.substring(0, 1).toLowerCase() + entityName.substring(1) + "Repository";
+        
+        return (CrudRepository) applicationContext.getBean(repositoryBeanName);
     }
 
-    public  Object obterClasseDtoEntidade(Class<?> model) throws Exception
+    public Class<?> obterClasseDtoEntidade(Class<?> entityClass) throws Exception
     {
-        String entityClassName = model.getSimpleName();
+        String entityClassName = entityClass.getSimpleName();
     
-        String basePackage = "br.com.controlefinanceiro.DTO";  // Altere para o pacote real onde seus DTOs estão
+        String basePackage = "br.com.controlefinanceiro.DTO";  
     
         String fullClassName = basePackage + "." + entityClassName + "DTO";
     
-        Class<?> dtoClass = Class.forName(fullClassName);
+        return Class.forName(fullClassName);
+    }
+    
+    public  Object obterObjetoDtoEntidade(Class<?> model) throws Exception
+    {
+        Class<?> dtoClass = obterClasseDtoEntidade(model);
         Object objetoDTO = dtoClass.getDeclaredConstructor().newInstance();
         
         return objetoDTO;
     }
-    
-    
-    
-    
-    // public CrudRepository obterRepositoryEntidade(Object entity) {
-    //     String repositoryBeanName = entity.getClass().getSimpleName().toLowerCase() + "Repository";
-        
-    //     // Log para imprimir todos os beans do tipo ContaRepository
-    //     System.out.println("Beans no contexto:");
-    //     for (String beanName : applicationContext.getBeanDefinitionNames()) {
-    //         System.out.println(beanName);
-    //     }
-    
-    //     try {
-    //         return (CrudRepository) applicationContext.getBean(repositoryBeanName);
-    //     } catch (Exception e) {
-    //         throw new RuntimeException("Repositório não encontrado para a entidade: " + entity.getClass().getSimpleName());
-    //     }
-    // }
-    
 
+
+
+    public <T> T mapEntityToDto(Object entity, Class<T> dtoClass) throws Exception {
+        // Cria uma nova instância do DTO
+        T dto = dtoClass.getDeclaredConstructor().newInstance();
+        
+        // Percorre as propriedades da entidade
+        for (Field entityField : entity.getClass().getDeclaredFields()) {
+            entityField.setAccessible(true); // Permite acesso a campos privados
+            
+            // Verifica se o campo da entidade tem um campo correspondente no DTO
+            try {
+                Field dtoField = dtoClass.getDeclaredField(entityField.getName());
+                dtoField.setAccessible(true);  // Permite acesso ao campo do DTO
+                
+                Object value = entityField.get(entity); // Obtém o valor do campo da entidade
+                
+                // Se o valor for uma entidade relacionada, mapeia de forma recursiva
+                if (value != null && !isPrimitiveOrWrapper(value.getClass())) {
+                    // Aqui você pode chamar um método recursivo para mapear objetos relacionados
+                    dtoField.set(dto, mapEntityToDto(value, dtoField.getType()));
+                } else {
+                    // Caso contrário, apenas mapeia o valor simples
+                    dtoField.set(dto, value);
+                }
+            } catch (Exception e) {
+                // Se o campo não existir no DTO, ignora (ou loga o erro, se necessário)
+                continue;
+            }
+        }
+        
+        return dto;
+    }
+    
+    private boolean isPrimitiveOrWrapper(Class<?> clazz) {
+        return clazz.isPrimitive() || clazz == String.class || 
+               clazz == Integer.class || clazz == Long.class || 
+               clazz == Double.class || clazz == Boolean.class;
+    }
+    
 
 
 }

@@ -26,6 +26,7 @@ import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.DTO.CategoriaDTO;
 import br.com.controlefinanceiro.DTO.ContaDTO;
 import br.com.controlefinanceiro.model.Conta;
+import br.com.controlefinanceiro.model.Tipo_Categoria;
 import br.com.controlefinanceiro.model.Tipo_Conta;
 import br.com.controlefinanceiro.repository.ContaRepository;
 import br.com.controlefinanceiro.repository.TipoContaRepository;
@@ -62,23 +63,34 @@ public class ContaController {
 	@GetMapping(value = "/{id_conta}")
 	public ResponseEntity<?> obterId(@PathVariable(value ="id_conta") Long id) throws Exception
 	{
-		Optional<Conta> objeto = objetoRepository.findById(id);
+		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+
+		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+
+		Optional<Object> objeto = repository.findById(id);
 		
 		if(objeto.isEmpty())
 		{
-			throw new MensagemException("Conta não encontrada!");
+			throw new MensagemException("Registro não encontrado!");
 		}
 		
-		return new ResponseEntity<ContaDTO>(new ContaDTO(objeto.get()), HttpStatus.OK);
-		
+		return new ResponseEntity<Object>( objeto.get(), HttpStatus.OK);
 	}
 	
 	@GetMapping(value = "/", produces = "application/json")
 	@CacheEvict(value = "cacheconta", allEntries = true)
 	@CachePut("cacheconta")
-	public ResponseEntity<List<?>> obterTodos() throws InterruptedException {
+	public ResponseEntity<List<?>> obterTodos() throws Exception
+	{
+
+		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
 		
-	    List<Conta> objetos = (List<Conta>) objetoRepository.findAll();
+		Class<?> dtoClass = utils.obterClasseDtoEntidade(this.model);
+
+		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+
+		// TO:DO - implementar dinamismo para obter todos os registros
+		List<Conta> objetos = (List<Conta>) repository.findAll();
 
 	    if (objetos.isEmpty())
 	    {
@@ -121,7 +133,7 @@ public class ContaController {
 		{
 			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
 		
-			Object objetoDTO = utils.obterClasseDtoEntidade(this.model);
+			Object objetoDTO = utils.obterObjetoDtoEntidade(this.model);
 
 			modelMapper.map(dto, objetoDTO);
 			modelMapper.map(objetoDTO, objetoModel);
@@ -143,17 +155,25 @@ public class ContaController {
 	}
 	
 	@PutMapping(value = "/", produces = "application/json")
-	public ResponseEntity<?> atualizar(@RequestBody ContaDTO dto) throws Exception
+	public ResponseEntity<?> atualizar(@RequestBody Object dto) throws Exception
 	{
 		try 
 		{
-			Conta objeto = modelMapper.map(dto, Conta.class);
-			
-		    utils.obterObjetoRelacionamento(objeto,dto,"id_tipoconta", tipoContaRepository, "setTipoConta", Tipo_Conta.class);
-	
-	        Conta objetoSalvo = objetoRepository.save(objeto);
-			
-			return new ResponseEntity<Conta>(objetoSalvo, HttpStatus.OK);
+			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+		
+			Object objetoDTO = utils.obterClasseDtoEntidade(this.model);
+
+			CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+
+			modelMapper.map(dto, objetoDTO);
+			modelMapper.map(objetoDTO, objetoModel);
+
+			//modificavel
+			utils.obterObjetoRelacionamento(objetoModel,objetoDTO,"id_tipoconta", tipoContaRepository, "setTipoConta", Tipo_Conta.class);
+
+			Object objetoSalvo = repository.save(objetoModel);
+
+			return new ResponseEntity<Object>(objetoSalvo, HttpStatus.OK);
 		} 
 		catch (Exception e)
 		{	
@@ -164,11 +184,17 @@ public class ContaController {
 	
 	
 	@DeleteMapping(value = "/{id_conta}", produces = "application/text" )
-	public String delete (@PathVariable("id_conta") Long id)
+	public String delete (@PathVariable("id_conta") Long id) throws Exception
 	{
-		objetoRepository.deleteById(id);
+
+		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
 		
-		return "Usuario deletado!";
+		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+
+
+		repository.deleteById(id);
+		
+		return "Registro deletado!";
 	}
 	
 	

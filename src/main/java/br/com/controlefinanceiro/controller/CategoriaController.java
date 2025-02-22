@@ -68,28 +68,43 @@ public class CategoriaController {
 	@GetMapping(value = "/{id_categoria}")
 	public ResponseEntity<?> obterId(@PathVariable(value ="id_categoria") Long id) throws Exception
 	{
-		Optional<Categoria> objeto = objetoRepository.findById(id);
+		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+
+		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+
+		Optional<Object> objeto = repository.findById(id);
 		
 		if(objeto.isEmpty())
 		{
-			throw new MensagemException("Objeto não encontrada!");
+			throw new MensagemException("Registro não encontrado!");
 		}
 		
-		return new ResponseEntity<CategoriaDTO>(new CategoriaDTO(objeto.get()), HttpStatus.OK);
+		return new ResponseEntity<Object>( objeto.get(), HttpStatus.OK);
 		
 	}
 
 		
 	@GetMapping(value = "/", produces = "application/json")
-	public ResponseEntity<List<?>> obterTodos() throws InterruptedException {
+	public ResponseEntity<List<?>> obterTodos() throws Exception {
 		
-	   List<Categoria> objetos = (List<Categoria>) objetoRepository.findAll();
+		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+		
+		Class<?> dtoClass = utils.obterClasseDtoEntidade(this.model);
 
-		List<CategoriaDTO> objetoDTO = objetos.stream()
-						.map(objeto -> new CategoriaDTO(objeto)) 
-						.collect(Collectors.toList()); 
-		
-		return new ResponseEntity<>(objetoDTO, HttpStatus.OK);
+		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+
+	    List<Object> objetos = (List<Object>) repository.findAll();
+
+	    if (objetos.isEmpty())
+	    {
+	        throw new MensagemException("Nenhum registro encontrado!");
+	    }
+   
+		List<Object> dto = objetos.stream()
+									.map(objeto -> modelMapper.map(objeto, dtoClass)) 
+									.collect(Collectors.toList());
+
+	    return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/", produces = "application/json")
