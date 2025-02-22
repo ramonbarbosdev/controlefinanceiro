@@ -1,16 +1,24 @@
 package br.com.controlefinanceiro.service;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+
+import br.com.controlefinanceiro.model.Tipo_Conta;
 
 @Service
 public class ValidacaoService 
 {
     
+   	@Autowired
+	private Utils utils;
+
+
    /**
      * Valida o objeto de forma genérica, 
      * 
@@ -35,7 +43,7 @@ public class ValidacaoService
     public void validaIdNaoInformado(Object objeto, String primaryKey) throws Exception
     {
       
-        Object idValue = obterCampo(objeto, primaryKey);
+        Object idValue = utils.obterCampo(objeto, primaryKey);
 
         if(idValue != null)
         {
@@ -43,47 +51,5 @@ public class ValidacaoService
         }
     }
 
-    /**
-     * Utiliza reflexão para acessar dinamicamente o valor de um campo de um objeto. 
-     * 
-     * @param objeto O objeto do qual o campo será acessado.
-     * @param campo O nome do campo no objeto.
-     * @return O valor do campo solicitado.
-     * @throws Exception Lança exceções se o campo não existir ou se o acesso for ilegal.
-     */
-    public Object obterCampo(Object objeto, String campo) throws Exception
-    {
-        Field field = objeto.getClass().getDeclaredField(campo);
-
-        field.setAccessible(true);
-
-        Object fieldValue = field.get(objeto);
-
-        // if(fieldValue == null)
-        // {
-        //     throw new Exception("Campo não informado!");
-        // }
-
-        return fieldValue;
-    }
-
-
-   public <T> void validaExistenciaRegistro(Object objeto, String primaryKey, CrudRepository<T, Long> repository) throws Exception 
-    {
-        // Obtendo o valor do campo que é a chave primária
-        Object valorRelacionado = obterCampo(objeto, primaryKey);
-
-        // Usando o repository para buscar o registro
-        Optional<T> resultado = repository.findById((Long) valorRelacionado);
-
-        // Se o resultado for vazio, significa que o registro não foi encontrado
-        if (resultado.isEmpty()) {
-            throw new Exception("Registro não encontrado para o valor " + valorRelacionado);
-        }
-
-  
-    }
-
-    
-
+ 
 }

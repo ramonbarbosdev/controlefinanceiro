@@ -27,6 +27,7 @@ import br.com.controlefinanceiro.model.Tipo_Conta;
 import br.com.controlefinanceiro.repository.ContaRepository;
 import br.com.controlefinanceiro.repository.TipoContaRepository;
 import br.com.controlefinanceiro.service.SequenciaService;
+import br.com.controlefinanceiro.service.Utils;
 import br.com.controlefinanceiro.service.ValidacaoService;
 import ch.qos.logback.core.model.Model;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class ContaController {
 	private TipoContaRepository tipoContaRepository;
 	
 	@Autowired
-	private SequenciaService sequenciaService;
+	private Utils utils;
 
 	@Autowired
 	private ValidacaoService validacaoService ;
@@ -93,14 +94,7 @@ public class ContaController {
 		{		
 			Conta objeto = modelMapper.map(dto, Conta.class);
 			
-	
-			validacaoService.validaExistenciaRegistro(objeto, "id_tipoconta", tipoContaRepository);
-		    Tipo_Conta tipo = tipoContaRepository.findById(dto.getId_tipoconta())
-		                 .orElseThrow(() -> new RuntimeException("Tipo de conta não encontrada"));
-
-			
-            objeto.setTipoConta(tipo);
-
+		    utils.obterObjetoRelacionamento(objeto,dto,"id_tipoconta", tipoContaRepository, "setTipoConta", Tipo_Conta.class);
 
 			validacaoService.validarCadastroGeral(objeto, "id_conta");
 	
