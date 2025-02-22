@@ -92,30 +92,30 @@ public class ContaController {
 	    return new ResponseEntity<>(objetoDTO, HttpStatus.OK);
 	}
 	
-	@PostMapping(value = "/", produces = "application/json")
-	public ResponseEntity<?> cadastrar(@RequestBody ContaDTO dto) throws Exception
-	{
-		try 
-		{		
-			Conta objeto = modelMapper.map(dto, Conta.class);
+	// @PostMapping(value = "/", produces = "application/json")
+	// public ResponseEntity<?> cadastrar(@RequestBody ContaDTO dto) throws Exception
+	// {
+	// 	try 
+	// 	{		
+	// 		Conta objeto = modelMapper.map(dto, Conta.class);
 			
-		    utils.obterObjetoRelacionamento(objeto,dto,"id_tipoconta", tipoContaRepository, "setTipoConta", Tipo_Conta.class);
+	// 	    utils.obterObjetoRelacionamento(objeto,dto,"id_tipoconta", tipoContaRepository, "setTipoConta", Tipo_Conta.class);
 
-			validacaoService.validarCadastroGeral(objeto, primaryKey);
+	// 		validacaoService.validarCadastroGeral(objeto, primaryKey);
 	
-	        Conta objetoSalvo = objetoRepository.save(objeto);
+	//         Conta objetoSalvo = objetoRepository.save(objeto);
 			
-			return new ResponseEntity<Conta>(objetoSalvo, HttpStatus.OK);
-		} 
-		catch (Exception e)
-		{	
-			 throw new MensagemException( e.getMessage());
-		}
+	// 		return new ResponseEntity<Conta>(objetoSalvo, HttpStatus.OK);
+	// 	} 
+	// 	catch (Exception e)
+	// 	{	
+	// 		 throw new MensagemException( e.getMessage());
+	// 	}
 
-	}
+	// }
 
-	@PostMapping(value = "/cadastro/", produces = "application/json")
-	public ResponseEntity<?> cadastroDinamico(@RequestBody Object dto) throws Exception
+	@PostMapping(value = "/", produces = "application/json")
+	public ResponseEntity<?> cadastro(@RequestBody Object dto) throws Exception
 	{
 		try
 		{

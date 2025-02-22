@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +35,8 @@ import br.com.controlefinanceiro.repository.ContaRepository;
 import br.com.controlefinanceiro.repository.TipoCategoriaRepository;
 import br.com.controlefinanceiro.repository.TipoContaRepository;
 import br.com.controlefinanceiro.service.SequenciaService;
+import br.com.controlefinanceiro.service.Utils;
+import br.com.controlefinanceiro.service.ValidacaoService;
 import ch.qos.logback.core.model.Model;
 import java.util.stream.Collectors;
 
@@ -49,6 +52,15 @@ public class CategoriaController {
 	@Autowired
 	private TipoCategoriaRepository tipoCategoriaRepository;
 
+	@Autowired
+	private Utils utils;
+
+	@Autowired
+	private ValidacaoService validacaoService ;
+
+	//atributos
+	private Class<?> model = Categoria.class;
+	private String primaryKey = "id_categoria";
 	private ModelMapper modelMapper = new ModelMapper();  
 	
 
@@ -81,26 +93,33 @@ public class CategoriaController {
 	}
 
 	@PostMapping(value = "/", produces = "application/json")
-	public ResponseEntity<?> cadastrar(@RequestBody CategoriaDTO dto) throws Exception {
-		try {
-			// Converter DTO para Categoria (mas ainda sem TipoCategoria)
-			Categoria objeto = modelMapper.map(dto, Categoria.class);
-			
-			// Buscar TipoCategoria no banco usando o ID recebido no DTO
-			Tipo_Categoria tipo = tipoCategoriaRepository.findById(dto.getId_tipocategoria())
-				.orElseThrow(() -> new MensagemException("Tipo de Categoria não encontrado"));
-			
-			// Definir o TipoCategoria na Categoria
-			objeto.setTipoCategoria(tipo);
-			
-			// Salvar a Categoria no banco
-			Categoria objetoSalvo = objetoRepository.save(objeto);
-			
-			return new ResponseEntity<>(objetoSalvo, HttpStatus.OK);
-		} catch (Exception e) {    
-			throw new MensagemException(e.getMessage());
+	public ResponseEntity<?> cadastro(@RequestBody Object dto) throws Exception
+	{
+		try
+		{
+			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+		
+			Object objetoDTO = utils.obterClasseDtoEntidade(this.model);
+
+			modelMapper.map(dto, objetoDTO);
+			modelMapper.map(objetoDTO, objetoModel);
+
+			//modificavel
+			utils.obterObjetoRelacionamento(objetoModel,objetoDTO,"id_tipocategoria", tipoCategoriaRepository, "setTipoCategoria", Tipo_Categoria.class);
+
+			validacaoService.validarCadastroGeral(objetoModel, this.primaryKey);
+
+			CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+			Object objetoSalvo = repository.save(objetoModel);
+
+			return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
+		}
+		catch (Exception e)
+		{
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
+	
 
 	@PutMapping(value = "/", produces = "application/json")
 	public ResponseEntity<?> atualizar(@RequestBody Categoria objeto)
