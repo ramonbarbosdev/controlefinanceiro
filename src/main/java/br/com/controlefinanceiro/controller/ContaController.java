@@ -63,21 +63,28 @@ public class ContaController {
 	@GetMapping(value = "/{id_conta}")
 	public ResponseEntity<?> obterId(@PathVariable(value ="id_conta") Long id) throws Exception
 	{
-		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
-		Class<?> objetoDTO = utils.obterClasseDtoEntidade(this.model);
-
-		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
-
-		Optional<?> objeto = repository.findById(id);
-		
-		if(objeto.isEmpty())
+		try
 		{
-			throw new MensagemException("Registro não encontrado!");
-		}
-		
-		Object dto = utils.converterDTO(objeto.get(), objetoDTO);
+			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+			Class<?> objetoDTO = utils.obterClasseDtoEntidade(this.model);
 
-		return new ResponseEntity<Object>( dto, HttpStatus.OK);
+			CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+
+			Optional<?> objeto = repository.findById(id);
+			
+			if(objeto.isEmpty())
+			{
+				throw new MensagemException("Registro não encontrado!");
+			}
+			
+			Object dto = utils.converterDTO(objeto.get(), objetoDTO);
+
+			return new ResponseEntity<Object>( dto, HttpStatus.OK);
+		}
+		catch (Exception e)
+		{
+				throw new MensagemException( e.getMessage());
+		}
 	}
 	
 	@GetMapping(value = "/", produces = "application/json")
@@ -85,24 +92,31 @@ public class ContaController {
 	@CachePut("cacheconta")
 	public ResponseEntity<List<?>> obterTodos() throws Exception
 	{
-		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
-		
-		Class<?> objetoDTO = utils.obterClasseDtoEntidade(this.model);
+		try
+		{
+			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+			
+			Class<?> objetoDTO = utils.obterClasseDtoEntidade(this.model);
 
-		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+			CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
 
-		List<Object> objetos = (List<Object>) repository.findAll();
+			List<Object> objetos = (List<Object>) repository.findAll();
 
-	    if (objetos.isEmpty())
-	    {
-	        throw new MensagemException("Nenhuma conta encontrada!");
-	    }
+			if (objetos.isEmpty())
+			{
+				throw new MensagemException("Nenhuma conta encontrada!");
+			}
 
-		List<?> listDTO = objetos.stream()
-									.map(objeto -> utils.converterDTO(objeto, objetoDTO))
-									.collect(Collectors.toList());
+			List<?> listDTO = objetos.stream()
+										.map(objeto -> utils.converterDTO(objeto, objetoDTO))
+										.collect(Collectors.toList());
 
-	    return new ResponseEntity<>(listDTO, HttpStatus.OK);
+			return new ResponseEntity<>(listDTO, HttpStatus.OK);
+		}
+		catch (Exception e)
+		{
+				throw new MensagemException( e.getMessage());
+		}
 	}
 
 	// @PostMapping(value = "/", produces = "application/json")
@@ -187,15 +201,22 @@ public class ContaController {
 	@DeleteMapping(value = "/{id_conta}", produces = "application/text" )
 	public String delete (@PathVariable("id_conta") Long id) throws Exception
 	{
+		try 
+		{
 
-		Object objetoModel = this.model.getDeclaredConstructor().newInstance();
-		
-		CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
+			Object objetoModel = this.model.getDeclaredConstructor().newInstance();
+			
+			CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
 
+			repository.deleteById(id);
+			
+			return "Registro deletado!";
 
-		repository.deleteById(id);
-		
-		return "Registro deletado!";
+		} 
+		catch (Exception e)
+		{	
+			throw new MensagemException( e.getMessage());
+		}
 	}
 	
 

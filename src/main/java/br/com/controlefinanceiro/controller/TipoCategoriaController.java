@@ -25,8 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.DTO.CategoriaDTO;
+import br.com.controlefinanceiro.DTO.Tipo_CategoriaDTO;
 import br.com.controlefinanceiro.DTO.UsuarioDTO;
 import br.com.controlefinanceiro.config.RelacionamentoConfig;
+import br.com.controlefinanceiro.DTO.CategoriaDTO;
 import br.com.controlefinanceiro.model.Categoria;
 import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.model.Tipo_Categoria;
@@ -45,25 +47,22 @@ import java.util.stream.Collectors;
 
 
 @RestController 
-@RequestMapping(value = "/categoria", produces = "application/json")
-public class CategoriaController  extends BaseController<Categoria, CategoriaDTO, Long>
+@RequestMapping(value = "/tipocategoria", produces = "application/json")
+public class TipoCategoriaController extends BaseController<Tipo_Categoria, Tipo_CategoriaDTO, Long>
 {
 
 
-	public CategoriaController(CategoriaRepository categoriaRepository, TipoCategoriaRepository tipoCategoriaRepository) {
+	public TipoCategoriaController(TipoCategoriaRepository repository)
+	{
+		super(Tipo_Categoria.class, Tipo_CategoriaDTO.class, "id_tipoentidade", inicializarRelacionamentos(null));
 
-		super(Categoria.class, CategoriaDTO.class, "id_categoria", inicializarRelacionamentos(tipoCategoriaRepository));
-		
+    
+    }
+
+	private static Map<String, RelacionamentoConfig> inicializarRelacionamentos(TipoCategoriaRepository tipoCategoriaRepository) {
+		return null;
 	}
 	
-	private static Map<String, RelacionamentoConfig> inicializarRelacionamentos(TipoCategoriaRepository tipoCategoriaRepository)
-	{
-		Map<String, RelacionamentoConfig> relacionamentos = new HashMap<>();
-
-		relacionamentos.put("id_tipocategoria", new RelacionamentoConfig(tipoCategoriaRepository, "setTipoCategoria", Tipo_Categoria.class));
-		
-		return relacionamentos;
-	}
 	
 	
 }
