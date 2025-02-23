@@ -49,10 +49,10 @@ import java.util.stream.Collectors;
 public class CategoriaController  extends BaseController<Categoria, CategoriaDTO, Long>
 {
 
-
+	@Autowired
 	public CategoriaController(CategoriaRepository categoriaRepository, TipoCategoriaRepository tipoCategoriaRepository) {
 
-		super(Categoria.class, CategoriaDTO.class, "id_categoria", inicializarRelacionamentos(tipoCategoriaRepository));
+		super(categoriaRepository, Categoria.class, CategoriaDTO.class, "id_categoria", inicializarRelacionamentos(tipoCategoriaRepository));
 		
 	}
 	

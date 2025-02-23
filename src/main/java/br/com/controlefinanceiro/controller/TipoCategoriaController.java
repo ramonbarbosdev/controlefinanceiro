@@ -51,10 +51,10 @@ import java.util.stream.Collectors;
 public class TipoCategoriaController extends BaseController<Tipo_Categoria, Tipo_CategoriaDTO, Long>
 {
 
-
+	@Autowired
 	public TipoCategoriaController(TipoCategoriaRepository repository)
 	{
-		super(Tipo_Categoria.class, Tipo_CategoriaDTO.class, "id_tipoentidade", inicializarRelacionamentos(null));
+		super(repository,Tipo_Categoria.class, Tipo_CategoriaDTO.class, "id_tipocategoria", Map.of());
 
     
     }

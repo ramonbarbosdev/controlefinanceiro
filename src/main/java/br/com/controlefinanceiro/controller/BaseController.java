@@ -24,7 +24,6 @@ import br.com.controlefinanceiro.service.ValidacaoService;
 
 public abstract  class BaseController<T,D,ID> {
     
-    @Autowired
     protected CrudRepository<T, ID> repository;
 
     @Autowired
@@ -39,16 +38,18 @@ public abstract  class BaseController<T,D,ID> {
     private final Class<T> entidadeClass;
     private final Class<D> entidadeDtoClass;
     private final String idEntidade;
+    
     private Map<String, RelacionamentoConfig> relacionamentos;
 
-    // Construtor com 4 parâmetros
-    public BaseController(Class<T> entidadeClass, Class<D> entidadeDtoClass, String idEntidade, Map<String, RelacionamentoConfig> relacionamentos) {
+    public BaseController(CrudRepository<T, ID> repository, Class<T> entidadeClass, Class<D> entidadeDtoClass, String idEntidade, Map<String, RelacionamentoConfig> relacionamentos) {
+        this.repository = repository;
         this.entidadeClass = entidadeClass;
         this.entidadeDtoClass = entidadeDtoClass;
         this.idEntidade = idEntidade;
         this.relacionamentos = relacionamentos;
     }
-    
+
+   
     
 
      // ✅ Buscar todos os registros
@@ -59,9 +60,11 @@ public abstract  class BaseController<T,D,ID> {
         {
             List<T> entidades = (List<T>) repository.findAll();
 
-            if (entidades.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            if (entidades.isEmpty())
+            {
+                throw new MensagemException("Nenhuma conta encontrada!");
             }
+     
      
             List<Object> listDTO = entidades.stream()
 										.map(entidade -> utils.converterDTO(entidade, entidadeDtoClass))
@@ -83,9 +86,11 @@ public abstract  class BaseController<T,D,ID> {
 		{
             Optional<T> entidade = repository.findById(id);
 
-            if (entidade.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            if (entidade.isEmpty())
+            {
+                throw new MensagemException("Nenhuma conta encontrada!");
             }
+     
     
         	Object dto = utils.converterDTO(entidade.get(), entidadeDtoClass);
 

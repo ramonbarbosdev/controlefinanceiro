@@ -49,7 +49,7 @@ public class ContaController extends BaseController<Conta, ContaDTO, Long>
 
 	public ContaController(ContaRepository ContaRepository, TipoContaRepository TipoContaRepository)
 	{
-		super(Conta.class, ContaDTO.class, "id_conta", inicializarRelacionamentos(TipoContaRepository));
+		super(ContaRepository, Conta.class, ContaDTO.class, "id_conta", inicializarRelacionamentos(TipoContaRepository));
 	}
 
 	private static Map<String, RelacionamentoConfig> inicializarRelacionamentos(TipoContaRepository repository)
