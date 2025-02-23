@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.DTO.ContaDTO;
 import br.com.controlefinanceiro.config.RelacionamentoConfig;
 import br.com.controlefinanceiro.model.Conta;
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class Utils
@@ -175,5 +177,57 @@ public class Utils
 
 		return entidadeInstancia;
 	}
+
+    public String converterParaCamelCase(String nome) {
+		String[] partes = nome.split("_");
+		StringBuilder resultado = new StringBuilder(partes[0].toLowerCase());
+	
+		for (int i = 1; i < partes.length; i++) {
+			resultado.append(partes[i].substring(0, 1).toUpperCase())
+					 .append(partes[i].substring(1).toLowerCase());
+		}
+	
+		return resultado.toString();
+	}
+
+    private final Map<Class<?>, CrudRepository<?, ?>> repositorios = new HashMap<>();
+    
+    @PostConstruct
+	public void inicializarRepositorios() {
+        Map<String, CrudRepository> beans = applicationContext.getBeansOfType(CrudRepository.class);
+        beans.values().forEach(repository -> repositorios.put(getRepositoryEntityClass(repository), repository));
+    }
+
+	private Class<?> getRepositoryEntityClass(CrudRepository<?, ?> repository) {
+        return repository.getClass().getInterfaces()[0].getGenericInterfaces()[0].getClass();
+    }
+
+	
+
+
+    public <T> T buscarEntidade(Class<T> entidadeClass, Long id) {
+
+		// Obtém o nome da classe da entidade
+		String entityName = entidadeClass.getSimpleName();
+		
+		String camelCase = converterParaCamelCase(entityName);
+		// Construa o nome do repositório esperado
+		String repositoryBeanName = camelCase + "Repository";
+	
+		// Busca o repositório no ApplicationContext
+		CrudRepository<T, Long> repository = (CrudRepository<T, Long>) applicationContext.getBean(repositoryBeanName);
+	
+		// Verifica se o repositório foi encontrado
+		if (repository == null) {
+			throw new RuntimeException("Repositório não encontrado para a entidade: " + entityName);
+		}
+	
+		// Realiza a busca da entidade pelo ID
+		return repository.findById(id)
+				.orElseThrow(() -> new RuntimeException(entityName + " não encontrada!"));
+	}
+
+	
+   
 
 }

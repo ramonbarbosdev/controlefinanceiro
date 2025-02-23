@@ -1,113 +1,81 @@
 package br.com.controlefinanceiro.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.DTO.Item_LancamentoDTO;
 import br.com.controlefinanceiro.DTO.LancamentoDTO;
-
-import br.com.controlefinanceiro.config.RelacionamentoConfig;
-
+import br.com.controlefinanceiro.model.Categoria;
 import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.model.Item_Lancamento;
 import br.com.controlefinanceiro.model.Lancamento;
+import br.com.controlefinanceiro.model.Metodo_Pagamento;
 import br.com.controlefinanceiro.model.Status_Lancamento;
-import br.com.controlefinanceiro.repository.ContaRepository;
+import br.com.controlefinanceiro.model.Tipo_Operacao;
+import br.com.controlefinanceiro.repository.ItemLancamentoRepository;
 import br.com.controlefinanceiro.repository.LancamentoRepository;
-import br.com.controlefinanceiro.repository.StatusLancamentoRepository;
 import br.com.controlefinanceiro.service.Utils;
 import jakarta.annotation.PostConstruct;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Map;
 
+@RestController
+@RequestMapping("/lancamento")
+public class LancamentoController {
 
+    @Autowired
+    private ApplicationContext applicationContext; // 🔥 Obtém os beans do Spring
 
-@RestController 
-@RequestMapping(value = "/lancamento", produces = "application/json")
-public class LancamentoController  extends BaseController<Lancamento, LancamentoDTO, Long>
-{
+    @Autowired
+    private LancamentoRepository lancamentoRepository;
 
-	
-	private static final String ID_ENTIDADE = "id_lancamento";
-	private static final Class<Lancamento> ENTIDADECLASS = Lancamento.class;
-	private static final Class<LancamentoDTO> ENTIDADECLASSDTO = LancamentoDTO.class;
-
-	//repositorios
-	@Autowired
-	private StatusLancamentoRepository statusLancamentoRepository;
-	
-	@Autowired
-	private ContaRepository contaRepository;
+    @Autowired
+    private ItemLancamentoRepository itemLancamentoRepository;
 
 	@Autowired
 	private Utils utils;
 
-	@Autowired
-	public LancamentoController(LancamentoRepository repository) {
+    @PostMapping(value = "/cadastrar/", produces = "application/json")
+    public ResponseEntity<Lancamento> criarLancamento(@RequestBody LancamentoDTO lancamentoDTO) {
+        Lancamento lancamento = new Lancamento();
+        lancamento.setConta(utils.buscarEntidade(Conta.class, lancamentoDTO.getId_conta()));
+        lancamento.setStatusLancamento(utils.buscarEntidade(Status_Lancamento.class, lancamentoDTO.getId_statuslancamento()));
+        lancamento.setDs_lancamento(lancamentoDTO.getDs_lancamento());
+        lancamento.setDt_lancamento(lancamentoDTO.getDt_lancamento());
+        lancamento.setVl_lancamento(0.0);
 
-		super(repository, ENTIDADECLASS, ENTIDADECLASSDTO, ID_ENTIDADE, Map.of());
-	}
-	
-	@PostConstruct
-    public void inicializarRelacionamentos() 
-	{
-		Map<String, RelacionamentoConfig> relacionamentos = new HashMap<>();
+        lancamento = lancamentoRepository.save(lancamento);
 
-		relacionamentos.put("id_conta", new RelacionamentoConfig(contaRepository, "setConta", Conta.class));
+        Double valorTotal = 0.0;
+        for (Item_LancamentoDTO itemDTO : lancamentoDTO.getItens_lancamento()) {
+            Item_Lancamento item = new Item_Lancamento();
+            item.setLancamento(lancamento);
 
-		relacionamentos.put("id_statuslancamento", new RelacionamentoConfig(statusLancamentoRepository, "setStatusLancamento", Status_Lancamento.class));
-		
-		setRelacionamentos(relacionamentos);
-	}
+            item.setCategoria(utils.buscarEntidade(Categoria.class, itemDTO.getId_categoria()));
+            item.setTipoOperacao(utils.buscarEntidade(Tipo_Operacao.class, itemDTO.getId_tipooperacao()));
+            item.setMetodoPagamento(utils.buscarEntidade(Metodo_Pagamento.class, itemDTO.getId_metodopagamento()));
 
-	@PostMapping(value = "/cadastrar/", produces = "application/json")
-	public ResponseEntity<?> cadastrar(@RequestBody LancamentoDTO dto) throws Exception {
-		
-		//criar lancamento
-		Object objeto =  new  Lancamento();
-		modelMapper.map(dto, objeto);
-		Lancamento objetoTipado = (Lancamento) objeto;
-		
-		//definir valor padrão
-		objetoTipado.setVl_lancamento(0.0);
+            item.setVl_movimento(itemDTO.getVl_movimento());
+            valorTotal += itemDTO.getVl_movimento();
 
-		//aplicar relacionamentos
-		objeto  = utils.aplicarRelacionamentos(objeto , dto, relacionamentos);
-		modelMapper.map(objetoTipado, objeto);
+            itemLancamentoRepository.save(item);
+        }
 
-		Double vl_lancamento = 0.0;
-		
+        lancamento.setVl_lancamento(valorTotal);
+        lancamento = lancamentoRepository.save(lancamento);
 
-		//associar os relacionamentos nos itens
-		for ( Item_LancamentoDTO itemDTO : dto.getItens_lancamento())
-		{
-			Item_Lancamento item = new Item_Lancamento();
-			modelMapper.map(itemDTO, item); 
-			
-			vl_lancamento += item.getVl_movimento();
-	
-			item.setLancamento(objetoTipado);
-			System.out.println(item);
-			
-			// objeto.getItens_lancamento().add(item);
-		}
+        return ResponseEntity.status(HttpStatus.CREATED).body(lancamento);
+    }
 
-		System.out.println("Valor do lançamento: " + vl_lancamento);
-        
-		
-		return new ResponseEntity<>(objeto , HttpStatus.CREATED);
-	}
+ 
 
-	
-	
-	
+  
 }
