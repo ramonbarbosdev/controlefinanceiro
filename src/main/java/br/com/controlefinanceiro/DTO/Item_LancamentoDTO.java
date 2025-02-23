@@ -11,6 +11,13 @@ public class Item_LancamentoDTO {
 	private Long id_categoria;
 	private Double vl_movimento;
 	private Long id_metodopagamento;
+	private Long lancamento; // Este campo deve existir para a associação funcionar corretamente
+
+    // Getter para o campo lancamento
+    public Long getLancamento() {
+        return lancamento;
+    }
+
     
     public Item_LancamentoDTO() {} // Construtor necessário para serialização
 

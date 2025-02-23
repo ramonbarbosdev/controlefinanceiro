@@ -32,9 +32,6 @@ import java.util.Map;
 public class LancamentoController {
 
     @Autowired
-    private ApplicationContext applicationContext; // 🔥 Obtém os beans do Spring
-
-    @Autowired
     private LancamentoRepository lancamentoRepository;
 
     @Autowired
@@ -44,7 +41,8 @@ public class LancamentoController {
 	private Utils utils;
 
     @PostMapping(value = "/cadastrar/", produces = "application/json")
-    public ResponseEntity<Lancamento> criarLancamento(@RequestBody LancamentoDTO lancamentoDTO) {
+    public ResponseEntity<Lancamento> criarLancamento(@RequestBody LancamentoDTO lancamentoDTO)
+	{
         Lancamento lancamento = new Lancamento();
         lancamento.setConta(utils.buscarEntidade(Conta.class, lancamentoDTO.getId_conta()));
         lancamento.setStatusLancamento(utils.buscarEntidade(Status_Lancamento.class, lancamentoDTO.getId_statuslancamento()));
@@ -55,7 +53,8 @@ public class LancamentoController {
         lancamento = lancamentoRepository.save(lancamento);
 
         Double valorTotal = 0.0;
-        for (Item_LancamentoDTO itemDTO : lancamentoDTO.getItens_lancamento()) {
+        for (Item_LancamentoDTO itemDTO : lancamentoDTO.getItens_lancamento())
+		{
             Item_Lancamento item = new Item_Lancamento();
             item.setLancamento(lancamento);
 
@@ -74,8 +73,6 @@ public class LancamentoController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(lancamento);
     }
-
- 
 
   
 }
