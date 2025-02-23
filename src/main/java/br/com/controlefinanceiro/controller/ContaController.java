@@ -27,10 +27,15 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.DTO.CategoriaDTO;
 import br.com.controlefinanceiro.DTO.ContaDTO;
+import br.com.controlefinanceiro.DTO.Item_LancamentoDTO;
 import br.com.controlefinanceiro.config.RelacionamentoConfig;
 import br.com.controlefinanceiro.model.Conta;
+import br.com.controlefinanceiro.model.Item_Lancamento;
+import br.com.controlefinanceiro.model.Lancamento;
+import br.com.controlefinanceiro.model.Metodo_Pagamento;
 import br.com.controlefinanceiro.model.Tipo_Categoria;
 import br.com.controlefinanceiro.model.Tipo_Conta;
+import br.com.controlefinanceiro.model.Tipo_Operacao;
 import br.com.controlefinanceiro.repository.ContaRepository;
 import br.com.controlefinanceiro.repository.TipoCategoriaRepository;
 import br.com.controlefinanceiro.repository.TipoContaRepository;
@@ -38,6 +43,8 @@ import br.com.controlefinanceiro.service.SequenciaService;
 import br.com.controlefinanceiro.service.Utils;
 import br.com.controlefinanceiro.service.ValidacaoService;
 import ch.qos.logback.core.model.Model;
+import jakarta.annotation.PostConstruct;
+
 import java.util.stream.Collectors;
 
 
@@ -47,18 +54,27 @@ import java.util.stream.Collectors;
 public class ContaController extends BaseController<Conta, ContaDTO, Long>
 {
 
-	public ContaController(ContaRepository ContaRepository, TipoContaRepository TipoContaRepository)
+	private static final String ID_ENTIDADE = "id_conta";
+	private static final Class<Conta> ENTIDADECLASS = Conta.class;
+	private static final Class<ContaDTO> ENTIDADECLASSDTO = ContaDTO.class;
+
+	@Autowired
+	private TipoContaRepository tipoContaRepository;
+
+	public ContaController(ContaRepository repository)
 	{
-		super(ContaRepository, Conta.class, ContaDTO.class, "id_conta", inicializarRelacionamentos(TipoContaRepository));
+		super(repository, ENTIDADECLASS, ENTIDADECLASSDTO, ID_ENTIDADE, Map.of());
+
 	}
 
-	private static Map<String, RelacionamentoConfig> inicializarRelacionamentos(TipoContaRepository repository)
+	@PostConstruct
+    public void inicializarRelacionamentos()
 	{
 		Map<String, RelacionamentoConfig> relacionamentos = new HashMap<>();
 
-		relacionamentos.put("id_tipoconta", new RelacionamentoConfig(repository, "setTipoConta", Tipo_Conta.class));
-		
-		return relacionamentos;
-	}
+		relacionamentos.put("id_tipoconta", new RelacionamentoConfig(tipoContaRepository, "setTipoConta", Tipo_Conta.class));
+
+		setRelacionamentos(relacionamentos);
+    }
 	
 }

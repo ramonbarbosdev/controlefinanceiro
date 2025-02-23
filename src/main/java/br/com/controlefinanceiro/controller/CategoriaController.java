@@ -25,12 +25,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.DTO.CategoriaDTO;
+import br.com.controlefinanceiro.DTO.Item_LancamentoDTO;
 import br.com.controlefinanceiro.DTO.UsuarioDTO;
 import br.com.controlefinanceiro.config.RelacionamentoConfig;
 import br.com.controlefinanceiro.model.Categoria;
 import br.com.controlefinanceiro.model.Conta;
+import br.com.controlefinanceiro.model.Item_Lancamento;
+import br.com.controlefinanceiro.model.Lancamento;
+import br.com.controlefinanceiro.model.Metodo_Pagamento;
 import br.com.controlefinanceiro.model.Tipo_Categoria;
 import br.com.controlefinanceiro.model.Tipo_Conta;
+import br.com.controlefinanceiro.model.Tipo_Operacao;
 import br.com.controlefinanceiro.model.Usuario;
 import br.com.controlefinanceiro.repository.CategoriaRepository;
 import br.com.controlefinanceiro.repository.ContaRepository;
@@ -40,6 +45,8 @@ import br.com.controlefinanceiro.service.SequenciaService;
 import br.com.controlefinanceiro.service.Utils;
 import br.com.controlefinanceiro.service.ValidacaoService;
 import ch.qos.logback.core.model.Model;
+import jakarta.annotation.PostConstruct;
+
 import java.util.stream.Collectors;
 
 
@@ -49,21 +56,30 @@ import java.util.stream.Collectors;
 public class CategoriaController  extends BaseController<Categoria, CategoriaDTO, Long>
 {
 
-	@Autowired
-	public CategoriaController(CategoriaRepository categoriaRepository, TipoCategoriaRepository tipoCategoriaRepository) {
+	private static final String ID_ENTIDADE = "id_itemlancamento";
+	private static final Class<Categoria> ENTIDADECLASS = Categoria.class;
+	private static final Class<CategoriaDTO> ENTIDADECLASSDTO = CategoriaDTO.class;
 
-		super(categoriaRepository, Categoria.class, CategoriaDTO.class, "id_categoria", inicializarRelacionamentos(tipoCategoriaRepository));
+	@Autowired
+	private TipoCategoriaRepository tipoCategoriaRepository;
+
+	@Autowired
+	public CategoriaController(CategoriaRepository repository) {
+
+		super(repository, ENTIDADECLASS, ENTIDADECLASSDTO, ID_ENTIDADE, Map.of());
 		
 	}
 	
-	private static Map<String, RelacionamentoConfig> inicializarRelacionamentos(TipoCategoriaRepository tipoCategoriaRepository)
+	@PostConstruct
+    public void inicializarRelacionamentos()
 	{
 		Map<String, RelacionamentoConfig> relacionamentos = new HashMap<>();
 
+
 		relacionamentos.put("id_tipocategoria", new RelacionamentoConfig(tipoCategoriaRepository, "setTipoCategoria", Tipo_Categoria.class));
-		
-		return relacionamentos;
-	}
+
+		setRelacionamentos(relacionamentos);
+    }
 	
 	
 }

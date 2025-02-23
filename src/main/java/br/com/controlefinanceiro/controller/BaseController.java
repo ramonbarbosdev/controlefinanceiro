@@ -49,6 +49,15 @@ public abstract  class BaseController<T,D,ID> {
         this.relacionamentos = relacionamentos;
     }
 
+    public void setRelacionamentos(Map<String, RelacionamentoConfig> relacionamentos)
+    {
+        this.relacionamentos = relacionamentos;
+    }
+
+    public Map<String, RelacionamentoConfig> getRelacionamentos()
+    {
+        return relacionamentos;
+    }
    
     
 
@@ -62,7 +71,7 @@ public abstract  class BaseController<T,D,ID> {
 
             if (entidades.isEmpty())
             {
-                throw new MensagemException("Nenhuma conta encontrada!");
+                throw new MensagemException("Nenhum reistro encontrada!");
             }
      
      
@@ -115,7 +124,6 @@ public abstract  class BaseController<T,D,ID> {
             modelMapper.map(dto, dtoInstancia);
             modelMapper.map(dtoInstancia, entidadeInstancia);
             
-            // TO:DO - PENSAR NO QUE FAZER QUANDO SE TEM MAIS DE UM RELACIONAMENTO
             entidadeInstancia = aplicarRelacionamentos(entidadeInstancia, dtoInstancia);
 
             validacaoService.validarCadastroGeral(entidadeInstancia, this.idEntidade);
