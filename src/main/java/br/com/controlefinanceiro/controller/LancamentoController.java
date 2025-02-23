@@ -15,8 +15,10 @@ import br.com.controlefinanceiro.config.RelacionamentoConfig;
 
 import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.model.Lancamento;
+import br.com.controlefinanceiro.model.Status_Lancamento;
 import br.com.controlefinanceiro.repository.ContaRepository;
 import br.com.controlefinanceiro.repository.LancamentoRepository;
+import br.com.controlefinanceiro.repository.StatusLancamentoRepository;
 
 
 
@@ -26,17 +28,19 @@ public class LancamentoController  extends BaseController<Lancamento, Lancamento
 {
 
 	@Autowired
-	public LancamentoController(LancamentoRepository lancamentoRepository, ContaRepository contaRepository) {
+	public LancamentoController(LancamentoRepository lancamentoRepository, ContaRepository contaRepository, StatusLancamentoRepository statusLancamentoRepository) {
 
-		super(lancamentoRepository,Lancamento.class, LancamentoDTO.class, "id_lancamento", Map.of());
+		super(lancamentoRepository,Lancamento.class, LancamentoDTO.class, "id_lancamento",inicializarRelacionamentos(contaRepository, statusLancamentoRepository));
 		
 	}
 	
-	private static Map<String, RelacionamentoConfig> inicializarRelacionamentos(ContaRepository repository)
+	private static Map<String, RelacionamentoConfig> inicializarRelacionamentos(ContaRepository contaRepository, StatusLancamentoRepository statusLancamentoRepository)
 	{
 		Map<String, RelacionamentoConfig> relacionamentos = new HashMap<>();
 
-		relacionamentos.put("id_conta", new RelacionamentoConfig(repository, "setConta", Conta.class));
+		relacionamentos.put("id_conta", new RelacionamentoConfig(contaRepository, "setConta", Conta.class));
+
+		relacionamentos.put("id_statuslancamento", new RelacionamentoConfig(statusLancamentoRepository, "setStatusLancamento", Status_Lancamento.class));
 		
 		return relacionamentos;
 	}
