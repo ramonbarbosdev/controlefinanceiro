@@ -151,4 +151,29 @@ public class Utils
         throw new UnsupportedOperationException("Unimplemented method 'obterObjetoRelacionamento'");
     }
 
+
+    public Object aplicarRelacionamentos(Object entidadeInstancia, Object dtoInstancia, Map<String, RelacionamentoConfig> relacionamentos ) throws Exception {
+
+		if (entidadeInstancia == null || dtoInstancia == null || relacionamentos == null)
+        {
+			throw new IllegalArgumentException("Entidade, DTO ou relacionamentos não podem ser nulos.");
+		}
+
+		for (Map.Entry<String, RelacionamentoConfig> entry : relacionamentos.entrySet()) {
+			String nomeCampo = entry.getKey();
+			RelacionamentoConfig config = entry.getValue();
+
+			obterObjetoRelacionamento(
+                    entidadeInstancia
+                    ,dtoInstancia
+                    ,nomeCampo
+                    ,config.getRepository()
+                    ,config.getSetter()
+                    ,config.getEntidadeRelacionada()
+                    );
+		}
+
+		return entidadeInstancia;
+	}
+
 }

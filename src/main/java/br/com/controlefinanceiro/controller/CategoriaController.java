@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 public class CategoriaController  extends BaseController<Categoria, CategoriaDTO, Long>
 {
 
-	private static final String ID_ENTIDADE = "id_itemlancamento";
+	private static final String ID_ENTIDADE = "id_categoria";
 	private static final Class<Categoria> ENTIDADECLASS = Categoria.class;
 	private static final Class<CategoriaDTO> ENTIDADECLASSDTO = CategoriaDTO.class;
 

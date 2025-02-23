@@ -1,6 +1,7 @@
 package br.com.controlefinanceiro.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -33,6 +34,19 @@ public class Lancamento {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_statuslancamento", referencedColumnName = "id_statuslancamento", nullable = false)
     private Status_Lancamento statusLancamento;
+
+
+    //exibir os itens do lançamento
+    @OneToMany(mappedBy = "lancamento", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Item_Lancamento> itens_lancamento;
+
+    public List<Item_Lancamento> getItens_lancamento() {
+        return itens_lancamento;
+    }
+
+    public void setItens_lancamento(List<Item_Lancamento> itens_lancamento) {
+        this.itens_lancamento = itens_lancamento;
+    }
 
     public Long getId_lancamento() {
         return id_lancamento;

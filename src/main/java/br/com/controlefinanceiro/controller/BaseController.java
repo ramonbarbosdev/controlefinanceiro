@@ -39,7 +39,7 @@ public abstract  class BaseController<T,D,ID> {
     private final Class<D> entidadeDtoClass;
     private final String idEntidade;
     
-    private Map<String, RelacionamentoConfig> relacionamentos;
+    protected Map<String, RelacionamentoConfig> relacionamentos;
 
     public BaseController(CrudRepository<T, ID> repository, Class<T> entidadeClass, Class<D> entidadeDtoClass, String idEntidade, Map<String, RelacionamentoConfig> relacionamentos) {
         this.repository = repository;
@@ -119,12 +119,13 @@ public abstract  class BaseController<T,D,ID> {
         {
 
             D dtoInstancia = entidadeDtoClass.getDeclaredConstructor().newInstance();
-            T entidadeInstancia = entidadeClass.getDeclaredConstructor().newInstance();
+            Object entidadeInstancia = entidadeClass.getDeclaredConstructor().newInstance();
 
             modelMapper.map(dto, dtoInstancia);
             modelMapper.map(dtoInstancia, entidadeInstancia);
             
-            entidadeInstancia = aplicarRelacionamentos(entidadeInstancia, dtoInstancia);
+            entidadeInstancia = utils.aplicarRelacionamentos(entidadeInstancia, dtoInstancia, relacionamentos);
+            
 
             validacaoService.validarCadastroGeral(entidadeInstancia, this.idEntidade);
 
@@ -147,13 +148,12 @@ public abstract  class BaseController<T,D,ID> {
         {
 
             D dtoInstancia = entidadeDtoClass.getDeclaredConstructor().newInstance();
-            T entidadeInstancia = entidadeClass.getDeclaredConstructor().newInstance();
+            Object entidadeInstancia = entidadeClass.getDeclaredConstructor().newInstance();
 
             modelMapper.map(dto, dtoInstancia);
             modelMapper.map(dtoInstancia, entidadeInstancia);
             
-            entidadeInstancia = aplicarRelacionamentos(entidadeInstancia, dtoInstancia);
-
+            entidadeInstancia = utils.aplicarRelacionamentos(entidadeInstancia, dtoInstancia, relacionamentos);
 
             CrudRepository genericoRepository = utils.obterRepositoryEntidade(entidadeInstancia);
     
@@ -187,37 +187,6 @@ public abstract  class BaseController<T,D,ID> {
 		}
 	}
 
-    private T aplicarRelacionamentos(T entidadeInstancia, D dtoInstancia) throws Exception {
-
-        if (entidadeInstancia == null || dtoInstancia == null || relacionamentos == null)
-        {
-            throw new IllegalArgumentException("Entidade, DTO ou relacionamentos não podem ser nulos.");
-        }
-    
-        for (Map.Entry<String, RelacionamentoConfig> entry : relacionamentos.entrySet())
-        {
-            String nomeCampo = entry.getKey();
-            RelacionamentoConfig config = entry.getValue();
-    
-            if (config == null)
-            {
-                throw new IllegalStateException("Configuração de relacionamento não pode ser nula para o campo: " + nomeCampo);
-            }
-    
-            utils.obterObjetoRelacionamento(
-                    entidadeInstancia,                  // objeto onde o método será invocado
-                    dtoInstancia,                       // DTO que contém os dados
-                    nomeCampo,                          // nome do campo a ser utilizado
-                    config.getRepository(),             // repositório para buscar a entidade
-                    config.getSetter(),                 // nome do método setter
-                    config.getEntidadeRelacionada()     // tipo do parâmetro que o setter espera
-                );
-          
-
-        }
-        return entidadeInstancia;
-    }
-
-
+   
 
 }

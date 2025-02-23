@@ -1,7 +1,10 @@
 package br.com.controlefinanceiro.DTO;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+import br.com.controlefinanceiro.model.Item_Lancamento;
 import br.com.controlefinanceiro.model.Lancamento;
 
 public class LancamentoDTO {
@@ -13,8 +16,10 @@ public class LancamentoDTO {
 	private Double vl_lancamento;
 	private Long id_statuslancamento;
 
+	private List<Item_LancamentoDTO> itens_lancamento = new ArrayList<>(); ;
+
     
-    public LancamentoDTO() {} // Construtor necessário para serialização
+    public LancamentoDTO() {} //construtor necessário para serialização
 
 	public LancamentoDTO(Lancamento objeto) {
 		this.id_lancamento = objeto.getId_lancamento();
@@ -23,6 +28,14 @@ public class LancamentoDTO {
 		this.ds_lancamento = objeto.getDs_lancamento();
 		this.vl_lancamento = objeto.getVl_lancamento();
 		this.id_statuslancamento = objeto.getStatusLancamento().getId_status_lancamento();
+
+		// Mapeia cada Item_Lancamento para Item_LancamentoDTO
+		this.itens_lancamento = new ArrayList<>();
+		for (Item_Lancamento item : objeto.getItens_lancamento())
+		{
+			this.itens_lancamento.add(new Item_LancamentoDTO(item));  
+		}
+		
 	}
 
 	public Long getId_lancamento() {
@@ -32,6 +45,15 @@ public class LancamentoDTO {
 	public void setId_lancamento(Long id_lancamento) {
 		this.id_lancamento = id_lancamento;
 	}
+
+	public List<Item_LancamentoDTO> getItens_lancamento() {
+		return itens_lancamento;
+	}
+
+	public void setItens_lancamento(List<Item_LancamentoDTO> itens_lancamento) {
+		this.itens_lancamento = itens_lancamento;
+	}
+
 
 	public Long getId_conta() {
 		return id_conta;
