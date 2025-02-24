@@ -12,10 +12,13 @@ public class Categoria {
     @GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "categoria_seq")
     private Long id_categoria;
 
-    @NotNull(message = "Tipo de categoria é obrigatório!")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_tipocategoria", referencedColumnName = "id_tipocategoria", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "id_tipocategoria", insertable = false, updatable = false)
     private Tipo_Categoria tipoCategoria;
+
+    @NotNull(message = "Tipo de categoria é obrigatório!")
+    @Column(name = "id_tipocategoria")
+    private Long id_tipocategoria;
 
     @NotNull(message = "Nome da categoria é obrigatório!")
     @Column(unique = true, nullable = false)
@@ -29,12 +32,12 @@ public class Categoria {
         this.id_categoria = id_categoria;
     }
 
-    public Tipo_Categoria getTipoCategoria() {
-        return tipoCategoria;
+    public Long getId_tipocategoria() {
+        return id_tipocategoria;
     }
 
-    public void setTipoCategoria(Tipo_Categoria tipoCategoria) {
-        this.tipoCategoria = tipoCategoria;
+    public void setId_tipocategoria(Long id_tipocategoria) {
+        this.id_tipocategoria = id_tipocategoria;
     }
 
     public String getNm_categoria() {

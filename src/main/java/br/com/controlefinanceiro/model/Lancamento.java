@@ -15,10 +15,13 @@ public class Lancamento {
     @GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "lancamento_seq")
     private Long id_lancamento;
 
-    @NotNull(message = "Conta é obrigatório!")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_conta", referencedColumnName = "id_conta", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "id_conta" , insertable = false, updatable = false)
     private Conta conta;
+
+    @NotNull(message = "Conta é obrigatório!")
+    @Column(name = "id_conta")
+    private Long id_conta;
 
     @NotNull(message = "Data é obrigatório!")
     @Column( nullable = false)
@@ -30,24 +33,15 @@ public class Lancamento {
     @Column( nullable = false)
     private Double vl_lancamento;
 
-    @NotNull(message = "Status é obrigatório!")
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_statuslancamento", referencedColumnName = "id_statuslancamento", nullable = false)
+    @JoinColumn(name = "id_statuslancamento", insertable = false, updatable = false)
     private Status_Lancamento statusLancamento;
 
-
-    //exibir os itens do lançamento
-    @OneToMany(mappedBy = "lancamento", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Item_Lancamento> itens_lancamento;
-
-    public List<Item_Lancamento> getItens_lancamento() {
-        return itens_lancamento;
-    }
-
-    public void setItens_lancamento(List<Item_Lancamento> itens_lancamento) {
-        this.itens_lancamento = itens_lancamento;
-    }
-
+    @NotNull(message = "Status é obrigatório!")
+    @Column(name = "id_statuslancamento")
+    private Long id_statuslancamento;
+   
+   
     public Long getId_lancamento() {
         return id_lancamento;
     }
@@ -56,12 +50,12 @@ public class Lancamento {
         this.id_lancamento = id_lancamento;
     }   
 
-    public Conta getConta() {
-        return conta;
+    public Long getId_conta() {
+        return id_conta;
     }
 
-    public void setConta(Conta conta) {
-        this.conta = conta;
+    public void setId_conta(Long id_conta) {
+        this.id_conta = id_conta;
     }
 
     public LocalDate getDt_lancamento() {
@@ -88,12 +82,13 @@ public class Lancamento {
         this.vl_lancamento = vl_lancamento;
     }
 
-    public Status_Lancamento getStatusLancamento() {
-        return statusLancamento;
+    
+    public Long getId_statuslancamento() {
+        return id_statuslancamento;
     }
 
-    public void setStatusLancamento(Status_Lancamento statusLancamento) {
-        this.statusLancamento = statusLancamento;
+    public void setId_statuslancamento(Long id_statuslancamento) {
+        this.id_statuslancamento = id_statuslancamento;
     }
 
 

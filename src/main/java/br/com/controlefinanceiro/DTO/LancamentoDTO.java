@@ -23,19 +23,12 @@ public class LancamentoDTO {
 
 	public LancamentoDTO(Lancamento objeto) {
 		this.id_lancamento = objeto.getId_lancamento();
-		this.id_conta = objeto.getConta().getId_conta();
+		this.id_conta = objeto.getId_conta();
 		this.dt_lancamento = objeto.getDt_lancamento();
 		this.ds_lancamento = objeto.getDs_lancamento();
 		this.vl_lancamento = objeto.getVl_lancamento();
-		this.id_statuslancamento = objeto.getStatusLancamento().getId_status_lancamento();
+		this.id_statuslancamento = objeto.getId_statuslancamento();
 
-		// Mapeia cada Item_Lancamento para Item_LancamentoDTO
-		this.itens_lancamento = new ArrayList<>();
-		for (Item_Lancamento item : objeto.getItens_lancamento())
-		{
-			this.itens_lancamento.add(new Item_LancamentoDTO(item));  
-		}
-		
 	}
 
 	public Long getId_lancamento() {

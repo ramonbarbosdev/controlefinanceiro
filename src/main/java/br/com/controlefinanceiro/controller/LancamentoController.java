@@ -29,50 +29,48 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/lancamento")
-public class LancamentoController {
+public class LancamentoController extends BaseController<Lancamento, LancamentoDTO,Long> {
 
-    @Autowired
-    private LancamentoRepository lancamentoRepository;
-
-    @Autowired
-    private ItemLancamentoRepository itemLancamentoRepository;
-
-	@Autowired
-	private Utils utils;
-
-    @PostMapping(value = "/cadastrar/", produces = "application/json")
-    public ResponseEntity<Lancamento> criarLancamento(@RequestBody LancamentoDTO lancamentoDTO)
-	{
-        Lancamento lancamento = new Lancamento();
-        lancamento.setConta(utils.buscarEntidade(Conta.class, lancamentoDTO.getId_conta()));
-        lancamento.setStatusLancamento(utils.buscarEntidade(Status_Lancamento.class, lancamentoDTO.getId_statuslancamento()));
-        lancamento.setDs_lancamento(lancamentoDTO.getDs_lancamento());
-        lancamento.setDt_lancamento(lancamentoDTO.getDt_lancamento());
-        lancamento.setVl_lancamento(0.0);
-
-        lancamento = lancamentoRepository.save(lancamento);
-
-        Double valorTotal = 0.0;
-        for (Item_LancamentoDTO itemDTO : lancamentoDTO.getItens_lancamento())
-		{
-            Item_Lancamento item = new Item_Lancamento();
-            item.setLancamento(lancamento);
-
-            item.setCategoria(utils.buscarEntidade(Categoria.class, itemDTO.getId_categoria()));
-            item.setTipoOperacao(utils.buscarEntidade(Tipo_Operacao.class, itemDTO.getId_tipooperacao()));
-            item.setMetodoPagamento(utils.buscarEntidade(Metodo_Pagamento.class, itemDTO.getId_metodopagamento()));
-
-            item.setVl_movimento(itemDTO.getVl_movimento());
-            valorTotal += itemDTO.getVl_movimento();
-
-            itemLancamentoRepository.save(item);
-        }
-
-        lancamento.setVl_lancamento(valorTotal);
-        lancamento = lancamentoRepository.save(lancamento);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(lancamento);
+    public LancamentoController(CrudRepository<Lancamento, Long> repository) {
+        super(repository);
+        //TODO Auto-generated constructor stub
     }
+
+  
+
+    // @PostMapping(value = "/cadastrar/", produces = "application/json")
+    // public ResponseEntity<Lancamento> criarLancamento(@RequestBody LancamentoDTO lancamentoDTO)
+	// {
+    //     Lancamento lancamento = new Lancamento();
+    //     lancamento.setConta(utils.buscarEntidade(Conta.class, lancamentoDTO.getId_conta()));
+    //     lancamento.setStatusLancamento(utils.buscarEntidade(Status_Lancamento.class, lancamentoDTO.getId_statuslancamento()));
+    //     lancamento.setDs_lancamento(lancamentoDTO.getDs_lancamento());
+    //     lancamento.setDt_lancamento(lancamentoDTO.getDt_lancamento());
+    //     lancamento.setVl_lancamento(0.0);
+
+    //     lancamento = lancamentoRepository.save(lancamento);
+
+    //     Double valorTotal = 0.0;
+    //     for (Item_LancamentoDTO itemDTO : lancamentoDTO.getItens_lancamento())
+	// 	{
+    //         Item_Lancamento item = new Item_Lancamento();
+    //         item.setLancamento(lancamento);
+
+    //         item.setCategoria(utils.buscarEntidade(Categoria.class, itemDTO.getId_categoria()));
+    //         item.setTipoOperacao(utils.buscarEntidade(Tipo_Operacao.class, itemDTO.getId_tipooperacao()));
+    //         item.setMetodoPagamento(utils.buscarEntidade(Metodo_Pagamento.class, itemDTO.getId_metodopagamento()));
+
+    //         item.setVl_movimento(itemDTO.getVl_movimento());
+    //         valorTotal += itemDTO.getVl_movimento();
+
+    //         itemLancamentoRepository.save(item);
+    //     }
+
+    //     lancamento.setVl_lancamento(valorTotal);
+    //     lancamento = lancamentoRepository.save(lancamento);
+
+    //     return ResponseEntity.status(HttpStatus.CREATED).body(lancamento);
+    // }
 
   
 }

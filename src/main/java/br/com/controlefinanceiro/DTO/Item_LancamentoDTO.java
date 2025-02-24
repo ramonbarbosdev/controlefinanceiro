@@ -11,24 +11,19 @@ public class Item_LancamentoDTO {
 	private Long id_categoria;
 	private Double vl_movimento;
 	private Long id_metodopagamento;
-	private Long lancamento; // Este campo deve existir para a associação funcionar corretamente
 
-    // Getter para o campo lancamento
-    public Long getLancamento() {
-        return lancamento;
-    }
+ 
 
-    
     public Item_LancamentoDTO() {} // Construtor necessário para serialização
 
 	public Item_LancamentoDTO(Item_Lancamento objeto)
 	{
 		this.id_itemlancamento = objeto.getId_itemlancamento();
-		this.id_lancamento = objeto.getLancamento().getId_lancamento();
-		this.id_tipooperacao = objeto.getTipoOperacao().getId_tipooperacao();
-		this.id_categoria = objeto.getCategoria().getId_categoria();
+		this.id_lancamento = objeto.getId_lancamento();
+		this.id_tipooperacao = objeto.getId_tipooperacao();
+		this.id_categoria = objeto.getId_categoria();
 		this.vl_movimento = objeto.getVl_movimento();
-		this.id_metodopagamento = objeto.getMetodoPagamento().getId_metodopagamento();
+		this.id_metodopagamento = objeto.getId_metodopagamento();
 	}
 
 	public Long getId_itemlancamento() {

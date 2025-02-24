@@ -14,29 +14,41 @@ public class Item_Lancamento {
     @GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "item_lancamento_seq")
     private Long id_itemlancamento;
 
-    @NotNull(message = "Lançamento é obrigatório!")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_lancamento", referencedColumnName = "id_lancamento", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "id_lancamento", insertable = false, updatable = false)
     private Lancamento lancamento;
 
-    @NotNull(message = "Tipo Operacao é obrigatório!")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_tipooperacao", referencedColumnName = "id_tipooperacao", nullable = false)
+    @NotNull(message = "Lançamento é obrigatório!")
+    @Column(name = "id_lancamento")
+    private Long id_lancamento;
+
+    @ManyToOne()
+    @JoinColumn(name = "id_tipooperacao", insertable = false, updatable = false)
     private Tipo_Operacao tipoOperacao;
 
-    @NotNull(message = "Categoria é obrigatório!")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_categoria", referencedColumnName = "id_categoria", nullable = false)
+    @NotNull(message = "Tipo Operacao é obrigatório!")
+    @Column(name = "id_tipooperacao")
+    private Long id_tipooperacao;
+
+    @ManyToOne()
+    @JoinColumn(name = "id_categoria", insertable = false, updatable = false)
     private Categoria categoria;
+
+    @NotNull(message = "Categoria é obrigatório!")
+    @Column(name = "id_categoria")
+    private Long id_categoria;
 
     @NotNull(message = "Valor do movimento é obrigatório!")
     @Column( nullable = false)
     private Double vl_movimento;
 
-    @NotNull(message = "Metodo do pagamento é obrigatório!")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_metodopagamento", referencedColumnName = "id_metodopagamento", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "id_metodopagamento", insertable = false, updatable = false)
     private Metodo_Pagamento metodoPagamento;
+
+    @NotNull(message = "Metodo do pagamento é obrigatório!")
+    @Column(name = "id_metodopagamento")
+    private Long id_metodopagamento;
 
     public Long getId_itemlancamento() {
         return id_itemlancamento;
@@ -46,28 +58,30 @@ public class Item_Lancamento {
         this.id_itemlancamento = id_itemlancamento;
     }
 
-    public Lancamento getLancamento() {
-        return lancamento;
+   public Long getId_lancamento() {
+        return id_lancamento;
     }
 
-    public void setLancamento(Lancamento lancamento) {
-        this.lancamento = lancamento;
+    public void setId_lancamento(Long id_lancamento) {
+        this.id_lancamento = id_lancamento;
     }
 
-    public Tipo_Operacao getTipoOperacao() {
-        return tipoOperacao;
+
+    public Long getId_tipooperacao() {
+        return id_tipooperacao;
     }
 
-    public void setTipoOperacao(Tipo_Operacao tipoOperacao) {
-        this.tipoOperacao = tipoOperacao;
+    public void setId_tipooperacao(Long id_tipooperacao) {
+        this.id_tipooperacao = id_tipooperacao;
     }
 
-    public Categoria getCategoria() {
-        return categoria;
+
+    public Long getId_categoria() {
+        return id_categoria;
     }
 
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
+    public void setId_categoria(Long id_categoria) {
+        this.id_categoria = id_categoria;
     }
 
     public Double getVl_movimento() {
@@ -78,12 +92,12 @@ public class Item_Lancamento {
         this.vl_movimento = vl_movimento;
     }
 
-    public Metodo_Pagamento getMetodoPagamento() {
-        return metodoPagamento;
+    public Long getId_metodopagamento() {
+        return id_metodopagamento;
     }
 
-    public void setMetodoPagamento(Metodo_Pagamento metodoPagamento) {
-        this.metodoPagamento = metodoPagamento;
+    public void setId_metodopagamento(Long id_metodopagamento) {
+        this.id_metodopagamento = id_metodopagamento;
     }
 
 
