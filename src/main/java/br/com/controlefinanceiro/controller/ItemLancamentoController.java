@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,44 +36,11 @@ import jakarta.annotation.PostConstruct;
 public class ItemLancamentoController  extends BaseController<Item_Lancamento, Item_LancamentoDTO, Long>
 {
 
-	private static final String ID_ENTIDADE = "id_itemlancamento";
-	private static final Class<Item_Lancamento> ENTIDADECLASS = Item_Lancamento.class;
-	private static final Class<Item_LancamentoDTO> ENTIDADECLASSDTO = Item_LancamentoDTO.class;
+	public ItemLancamentoController(CrudRepository<Item_Lancamento, Long> repository) {
+		super(repository);
+		//TODO Auto-generated constructor stub
+	}
 
-	// private Map<String, RelacionamentoConfig> relacionamentos;
-
-	//repositorios
-	@Autowired
-	private LancamentoRepository lancamentoRepository;
-	
-	@Autowired
-	private TipoOperacaoRepository tipoOperacaoRepository;
-
-	@Autowired
-	private MetodoPagamentoRepository	metodoPagamentoRepository;
-
-	@Autowired
-    public ItemLancamentoController(ItemLancamentoRepository repository)
-	{
-        super(repository, ENTIDADECLASS, ENTIDADECLASSDTO, ID_ENTIDADE, Map.of());
-    }
-	
-	@PostConstruct
-    public void inicializarRelacionamentos()
-	{
-		Map<String, RelacionamentoConfig> relacionamentos = new HashMap<>();
-
-        // relacionamentos = new HashMap<>();
-
-        relacionamentos.put("id_lancamento", new RelacionamentoConfig(lancamentoRepository, "setLancamento", Lancamento.class));
-
-        relacionamentos.put("id_tipooperacao", new RelacionamentoConfig(tipoOperacaoRepository, "setTipoOperacao", Tipo_Operacao.class));
-
-        relacionamentos.put("id_metodopagamento", new RelacionamentoConfig(metodoPagamentoRepository, "setMetodoPagamento", Metodo_Pagamento.class));
-
-		setRelacionamentos(relacionamentos);
-    }
-	
 	
 }
 

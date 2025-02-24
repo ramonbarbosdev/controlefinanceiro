@@ -56,30 +56,10 @@ import java.util.stream.Collectors;
 public class CategoriaController  extends BaseController<Categoria, CategoriaDTO, Long>
 {
 
-	private static final String ID_ENTIDADE = "id_categoria";
-	private static final Class<Categoria> ENTIDADECLASS = Categoria.class;
-	private static final Class<CategoriaDTO> ENTIDADECLASSDTO = CategoriaDTO.class;
-
-	@Autowired
-	private TipoCategoriaRepository tipoCategoriaRepository;
-
-	@Autowired
-	public CategoriaController(CategoriaRepository repository) {
-
-		super(repository, ENTIDADECLASS, ENTIDADECLASSDTO, ID_ENTIDADE, Map.of());
-		
+	public CategoriaController(CrudRepository<Categoria, Long> repository) {
+		super(repository);
 	}
-	
-	@PostConstruct
-    public void inicializarRelacionamentos()
-	{
-		Map<String, RelacionamentoConfig> relacionamentos = new HashMap<>();
 
-
-		relacionamentos.put("id_tipocategoria", new RelacionamentoConfig(tipoCategoriaRepository, "setTipoCategoria", Tipo_Categoria.class));
-
-		setRelacionamentos(relacionamentos);
-    }
 	
 	
 }

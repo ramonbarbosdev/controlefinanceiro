@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.config.RelacionamentoConfig;
+import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.service.Utils;
 import br.com.controlefinanceiro.service.ValidacaoService;
 
@@ -35,31 +36,11 @@ public abstract  class BaseController<T,D,ID> {
     @Autowired
     private ValidacaoService validacaoService;
 
-    private final Class<T> entidadeClass;
-    private final Class<D> entidadeDtoClass;
-    private final String idEntidade;
-    
-    protected Map<String, RelacionamentoConfig> relacionamentos;
 
-    public BaseController(CrudRepository<T, ID> repository, Class<T> entidadeClass, Class<D> entidadeDtoClass, String idEntidade, Map<String, RelacionamentoConfig> relacionamentos) {
-        this.repository = repository;
-        this.entidadeClass = entidadeClass;
-        this.entidadeDtoClass = entidadeDtoClass;
-        this.idEntidade = idEntidade;
-        this.relacionamentos = relacionamentos;
-    }
-
-    public void setRelacionamentos(Map<String, RelacionamentoConfig> relacionamentos)
+    public BaseController(CrudRepository<T, ID> repository)
     {
-        this.relacionamentos = relacionamentos;
+        this.repository = repository; 
     }
-
-    public Map<String, RelacionamentoConfig> getRelacionamentos()
-    {
-        return relacionamentos;
-    }
-   
-    
 
      // ✅ Buscar todos os registros
      @GetMapping(value = "/", produces = "application/json")
@@ -71,15 +52,11 @@ public abstract  class BaseController<T,D,ID> {
 
             if (entidades.isEmpty())
             {
-                throw new MensagemException("Nenhum reistro encontrada!");
+                throw new MensagemException("Nenhum registro encontrada!");
             }
      
-     
-            List<Object> listDTO = entidades.stream()
-										.map(entidade -> utils.converterDTO(entidade, entidadeDtoClass))
-										.collect(Collectors.toList());
 
-			return new ResponseEntity<>(listDTO, HttpStatus.OK);
+			return new ResponseEntity<>(entidades, HttpStatus.OK);
 
         } catch (Exception e)
         {
@@ -93,17 +70,14 @@ public abstract  class BaseController<T,D,ID> {
     public ResponseEntity<?> obterPorId(@PathVariable ID id) {
         try
 		{
-            Optional<T> entidade = repository.findById(id);
+            Optional<T> objeto =  repository.findById(id);
 
-            if (entidade.isEmpty())
+            if (!objeto.isPresent())
             {
-                throw new MensagemException("Nenhuma conta encontrada!");
+                throw new MensagemException("Registro não encontrado!");
             }
-     
-    
-        	Object dto = utils.converterDTO(entidade.get(), entidadeDtoClass);
 
-			return new ResponseEntity<Object>( dto, HttpStatus.OK);
+			return new ResponseEntity<>( objeto, HttpStatus.OK);
 		}
 		catch (Exception e)
 		{
@@ -113,27 +87,13 @@ public abstract  class BaseController<T,D,ID> {
 
      // ✅ Criar novo registro
     @PostMapping(value = "/", produces = "application/json")
-    public ResponseEntity<?> cadastrar(@RequestBody D dto) throws Exception
+    public ResponseEntity<?> cadastrar(@RequestBody T objeto) throws Exception
     {
         try
         {
-
-            D dtoInstancia = entidadeDtoClass.getDeclaredConstructor().newInstance();
-            Object entidadeInstancia = entidadeClass.getDeclaredConstructor().newInstance();
-
-            modelMapper.map(dto, dtoInstancia);
-            modelMapper.map(dtoInstancia, entidadeInstancia);
-            
-            entidadeInstancia = utils.aplicarRelacionamentos(entidadeInstancia, dtoInstancia, relacionamentos);
-            
-
-            validacaoService.validarCadastroGeral(entidadeInstancia, this.idEntidade);
-
-            CrudRepository genericoRepository = utils.obterRepositoryEntidade(entidadeInstancia);
+            T objetoSalvo = repository.save(objeto);
     
-            Object salvo = genericoRepository.save(entidadeInstancia);
-
-            return new ResponseEntity<>(salvo, HttpStatus.CREATED);
+			return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
         }
         catch (Exception e)
         {
@@ -142,24 +102,13 @@ public abstract  class BaseController<T,D,ID> {
     }
 
     @PutMapping(value = "/", produces = "application/json")
-    public ResponseEntity<?> atualizar(@RequestBody D dto) throws Exception
+    public ResponseEntity<?> atualizar(@RequestBody T objeto) throws Exception
     {
         try
         {
-
-            D dtoInstancia = entidadeDtoClass.getDeclaredConstructor().newInstance();
-            Object entidadeInstancia = entidadeClass.getDeclaredConstructor().newInstance();
-
-            modelMapper.map(dto, dtoInstancia);
-            modelMapper.map(dtoInstancia, entidadeInstancia);
-            
-            entidadeInstancia = utils.aplicarRelacionamentos(entidadeInstancia, dtoInstancia, relacionamentos);
-
-            CrudRepository genericoRepository = utils.obterRepositoryEntidade(entidadeInstancia);
+            T objetoSalvo = repository.save(objeto);
     
-            Object salvo = genericoRepository.save(entidadeInstancia);
-
-            return new ResponseEntity<>(salvo, HttpStatus.CREATED);
+			return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
         }
         catch (Exception e)
         {
@@ -172,11 +121,8 @@ public abstract  class BaseController<T,D,ID> {
 	{
 		try 
 		{
-			Object objetoModel = this.entidadeClass.getDeclaredConstructor().newInstance();
-			
-			CrudRepository repository = utils.obterRepositoryEntidade(objetoModel);
 
-			repository.deleteById(id);
+			 repository.deleteById((ID) id);
 			
 			return "Registro deletado!";
 
