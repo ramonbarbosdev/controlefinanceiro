@@ -1,6 +1,7 @@
 package br.com.controlefinanceiro.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -40,7 +41,11 @@ public class Lancamento {
     @NotNull(message = "Status é obrigatório!")
     @Column(name = "id_statuslancamento")
     private Long id_statuslancamento;
-   
+
+    //Listagem de itens
+    @OneToMany(mappedBy = "lancamento", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    private List<Item_Lancamento> itenslancamento = new ArrayList<Item_Lancamento>();
+
    
     public Long getId_lancamento() {
         return id_lancamento;
@@ -89,6 +94,14 @@ public class Lancamento {
 
     public void setId_statuslancamento(Long id_statuslancamento) {
         this.id_statuslancamento = id_statuslancamento;
+    }
+
+    public List<Item_Lancamento> getItenslancamento() {
+        return itenslancamento;
+    }
+
+    public void setItenslancamento(List<Item_Lancamento> itenslancamento) {
+        this.itenslancamento = itenslancamento;
     }
 
 
