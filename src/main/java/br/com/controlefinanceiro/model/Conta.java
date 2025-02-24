@@ -35,21 +35,32 @@ public class Conta {
 	@NotBlank(message = "A Nome da conta é obrigatorio!")
 	private String nm_conta;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_tipoconta", referencedColumnName = "id_tipoconta", nullable = false)
-    private Tipo_Conta id_tipoconta; // Agora corretamente mapeado para a entidade TipoConta
+	@ManyToOne()
+    @JoinColumn(name = "id_tipoconta", insertable = false, updatable = false)
+    private Tipo_Conta tipoconta; // Agora corretamente mapeado para a entidade TipoConta
 	
+	@Column(name = "id_tipoconta")
+	private Long id_tipoconta;
+
 
 	private Boolean fl_ativo;
 
     // Getters e Setters
-    public Tipo_Conta getTipoConta() {
-        return id_tipoconta;
-    }
+	public Boolean getFl_ativo() {
+		return fl_ativo;
+	}
 
-    public void setTipoConta(Tipo_Conta tipoConta) {
-        this.id_tipoconta = tipoConta;
-    }
+	public void setFl_ativo(Boolean fl_ativo) {
+		this.fl_ativo = fl_ativo;
+	}
+
+	public Long getId_tipoconta() {
+		return id_tipoconta;
+	}
+
+	public void setId_tipoconta(Long id_tipoconta) {
+		this.id_tipoconta = id_tipoconta;
+	}
 
 	public Long getId_conta() {
 		return id_conta;

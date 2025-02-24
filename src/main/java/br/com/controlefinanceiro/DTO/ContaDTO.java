@@ -15,7 +15,7 @@ public class ContaDTO {
 		this.id_conta = conta.getId_conta();
 		this.cd_conta = conta.getCd_conta();
 		this.nm_conta = conta.getNm_conta();
-		this.id_tipoconta = conta.getTipoConta().getId_tipoconta();	
+		this.id_tipoconta = conta.getId_tipoconta();	
 	}
 
 	public Long getId_conta() {
