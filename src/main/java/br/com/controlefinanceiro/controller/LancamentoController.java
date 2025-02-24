@@ -61,6 +61,9 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
             for(Item_Lancamento item : itens)
             {
                 item.setId_lancamento(objeto.getId_lancamento());
+
+                //incluir validacoes de categoria, metodo de pagamento e tipo de operacao
+
                 item = itemLancamentoRepository.save(item);
                 vl_lancamento += item.getVl_movimento();
             }
