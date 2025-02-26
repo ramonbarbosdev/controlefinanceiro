@@ -22,6 +22,7 @@ import br.com.controlefinanceiro.model.Status_Lancamento;
 import br.com.controlefinanceiro.model.Tipo_Operacao;
 import br.com.controlefinanceiro.repository.ItemLancamentoRepository;
 import br.com.controlefinanceiro.repository.LancamentoRepository;
+import br.com.controlefinanceiro.service.ItemLancamentoService;
 import br.com.controlefinanceiro.service.LancamentoService;
 import br.com.controlefinanceiro.service.Utils;
 import jakarta.annotation.PostConstruct;
@@ -41,6 +42,9 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
     private ItemLancamentoRepository itemLancamentoRepository;
 
     @Autowired
+    private ItemLancamentoService itemLancamentoService;
+
+    @Autowired
     private LancamentoService lancamentoService;
     
     public LancamentoController(CrudRepository<Lancamento, Long> repository) {
@@ -56,7 +60,7 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
         try
         {
             objeto.setVl_lancamento(0.0);
-
+            lancamentoService.validacaoCadastrar(objeto);
             objeto = objetoReporitory.save(objeto);
 
             Double vl_lancamento = 0.0;
@@ -69,13 +73,15 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
                 {
                     item.setId_lancamento(objeto.getId_lancamento());
 
-                    lancamentoService.validacaoCadastrar(item, itens, objeto.getId_lancamento());
+                    itemLancamentoService.validacaoCadastrar(item, itens, objeto.getId_lancamento());
 
                     item = itemLancamentoRepository.save(item);
                     vl_lancamento += item.getVl_movimento();
                 }
             }
+
             objeto.setVl_lancamento(vl_lancamento);
+            lancamentoService.validarValorTotalItem(itens, vl_lancamento);
             objeto = objetoReporitory.save(objeto);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
