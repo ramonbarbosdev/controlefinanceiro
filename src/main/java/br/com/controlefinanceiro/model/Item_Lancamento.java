@@ -18,7 +18,6 @@ public class Item_Lancamento {
     @JoinColumn(name = "id_lancamento", insertable = false, updatable = false)
     private Lancamento lancamento;
 
-    @NotNull(message = "Lançamento é obrigatório!")
     @Column(name = "id_lancamento")
     private Long id_lancamento;
 
@@ -34,7 +33,6 @@ public class Item_Lancamento {
     @JoinColumn(name = "id_categoria", insertable = false, updatable = false)
     private Categoria categoria;
 
-    @NotNull(message = "Categoria é obrigatório!")
     @Column(name = "id_categoria")
     private Long id_categoria;
 

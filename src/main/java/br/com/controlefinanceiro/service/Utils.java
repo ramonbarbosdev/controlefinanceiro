@@ -27,6 +27,19 @@ public class Utils
     @Autowired
     private ApplicationContext applicationContext;
 
+
+    public static boolean inArray(int[] array, Long valor)
+    {
+        for (int num : array)
+        {
+            if (num == valor)
+            {
+                return true; 
+            }
+        }
+        return false; 
+    }
+
     
     public <T> Object obterObjetoRelacionamento(Object objeto, Object dto, String primaryKey, CrudRepository<T, Long> repository, String methodName, Class<?> parameterType) throws Exception {
 

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.DTO.Item_LancamentoDTO;
 import br.com.controlefinanceiro.DTO.LancamentoDTO;
 import br.com.controlefinanceiro.model.Categoria;
@@ -21,6 +22,7 @@ import br.com.controlefinanceiro.model.Status_Lancamento;
 import br.com.controlefinanceiro.model.Tipo_Operacao;
 import br.com.controlefinanceiro.repository.ItemLancamentoRepository;
 import br.com.controlefinanceiro.repository.LancamentoRepository;
+import br.com.controlefinanceiro.service.LancamentoService;
 import br.com.controlefinanceiro.service.Utils;
 import jakarta.annotation.PostConstruct;
 import java.lang.reflect.ParameterizedType;
@@ -37,6 +39,9 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
 
     @Autowired
     private ItemLancamentoRepository itemLancamentoRepository;
+
+    @Autowired
+    private LancamentoService lancamentoService;
     
     public LancamentoController(CrudRepository<Lancamento, Long> repository) {
         super(repository);
@@ -48,30 +53,37 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
     @PostMapping(value = "/cadastrar/", produces = "application/json")
     public ResponseEntity<Lancamento> criarLancamento(@RequestBody Lancamento objeto)
 	{
-        objeto.setVl_lancamento(0.0);
-
-        objeto = objetoReporitory.save(objeto);
-
-        Double vl_lancamento = 0.0;
-
-        //criar uma funcao de salvar os itens do lancamento
-        List<Item_Lancamento> itens = objeto.getItenslancamento();
-        if(itens != null)
+        try
         {
-            for(Item_Lancamento item : itens)
+            objeto.setVl_lancamento(0.0);
+
+            objeto = objetoReporitory.save(objeto);
+
+            Double vl_lancamento = 0.0;
+
+            //criar uma funcao de salvar os itens do lancamento
+            List<Item_Lancamento> itens = objeto.getItenslancamento();
+            if(itens != null)
             {
-                item.setId_lancamento(objeto.getId_lancamento());
+                for(Item_Lancamento item : itens)
+                {
+                    item.setId_lancamento(objeto.getId_lancamento());
 
-                //incluir validacoes de categoria, metodo de pagamento e tipo de operacao
+                    lancamentoService.validacaoCadastrar(item, itens, objeto.getId_lancamento());
 
-                item = itemLancamentoRepository.save(item);
-                vl_lancamento += item.getVl_movimento();
+                    item = itemLancamentoRepository.save(item);
+                    vl_lancamento += item.getVl_movimento();
+                }
             }
-        }
-        objeto.setVl_lancamento(vl_lancamento);
-        objeto = objetoReporitory.save(objeto);
+            objeto.setVl_lancamento(vl_lancamento);
+            objeto = objetoReporitory.save(objeto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
+        }
+        catch(Exception e)
+        {
+           throw new MensagemException( e.getMessage());
+        }
     }
 
   
