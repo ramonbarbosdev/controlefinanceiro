@@ -116,8 +116,8 @@ public abstract  class BaseController<T,D,ID> {
         }
     }
 
-    @DeleteMapping(value = "/{id_conta}", produces = "application/text" )
-	public String delete (@PathVariable("id_conta") Long id) throws Exception
+    @DeleteMapping(value = "/{id}", produces = "application/text" )
+	public String delete (@PathVariable("id") Long id) throws Exception
 	{
 		try 
 		{

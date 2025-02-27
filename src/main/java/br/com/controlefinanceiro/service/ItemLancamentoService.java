@@ -71,6 +71,7 @@ public class ItemLancamentoService {
 
     public void validarTipoOperacao(Item_Lancamento item, List<Item_Lancamento> listaItens, Long id_lancamento) throws RuntimeException
     {
+        Long id_itemlancamento =  item.getId_itemlancamento();
         Long id_tipooperacao = item.getId_tipooperacao();
         Long id_categoria = item.getId_categoria();
         Long tipoSaldoPermitido = (long) 1;
@@ -117,10 +118,11 @@ public class ItemLancamentoService {
             }
         }
 
-        if(fl_existeTipoSaldoInicial != null && fl_existeTipoSaldoInicial)
+        if(fl_existeTipoSaldoInicial != null && fl_existeTipoSaldoInicial && id_itemlancamento == null)
         {
             throw new RuntimeException("Já existe um saldo inicial cadastrado para este tipo de operação");
         }
+
         if(contadorTipoSaldoInicial > 1)
         {
             throw new RuntimeException("Já existe um saldo inicial cadastrado para este tipo de operação");

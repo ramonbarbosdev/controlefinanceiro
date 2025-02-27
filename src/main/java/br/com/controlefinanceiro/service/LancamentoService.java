@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.model.Item_Lancamento;
 import br.com.controlefinanceiro.model.Lancamento;
+import br.com.controlefinanceiro.model.Status_Lancamento;
 import br.com.controlefinanceiro.repository.CategoriaRepository;
 import br.com.controlefinanceiro.repository.ContaRepository;
 import br.com.controlefinanceiro.repository.ItemLancamentoRepository;
+import br.com.controlefinanceiro.repository.StatusLancamentoRepository;
 
 
 
@@ -25,13 +27,35 @@ public class LancamentoService {
     @Autowired
     private ContaRepository contaRepository;
 
+    @Autowired
+    private StatusLancamentoRepository statusLancamentoRepository;;
+
     public void validacaoCadastrar(Lancamento objeto) throws RuntimeException
     {
         validarConta(objeto);
         validarDataLancamento(objeto);
         validarDescricao(objeto);
         // validarValorLancamento(objeto);
-       
+        validarStausLancamento(objeto);
+    }
+
+    public void validarStausLancamento(Lancamento objeto) throws RuntimeException
+    {
+
+        int [] statusValidos = {1, 2, 3};
+
+        Long id_status = objeto.getId_statuslancamento();
+
+        if(id_status == null)
+        {
+            throw new RuntimeException("Status do lançamento não pode ser nulo");
+        }
+
+        if(!utils.inArray(statusValidos, id_status))
+        {
+            throw new RuntimeException("Status do lançamento inválido");
+        }
+
     }
 
     public void validarValorTotalItem(List<Item_Lancamento> listaItens, Double vl_lancamento) throws RuntimeException

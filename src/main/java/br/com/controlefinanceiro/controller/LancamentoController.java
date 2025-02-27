@@ -92,5 +92,51 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
         }
     }
 
+    @PutMapping(value = "/atualizar/", produces = "application/json")
+    public ResponseEntity<Lancamento> atualizarLancamento( @RequestBody Lancamento objeto) {
+        try {
+          
+            lancamentoService.validacaoCadastrar(objeto);
+            
+            List<Item_Lancamento> itens = objeto.getItenslancamento();
+            if (itens != null)
+            {
+                for (Item_Lancamento item : itens)
+                {
+                    item.setId_lancamento(objeto.getId_lancamento());
+                    itemLancamentoService.validacaoCadastrar(item, itens, objeto.getId_lancamento());
+                    itemLancamentoRepository.save(item);
+                }
+            }
+
+            objetoReporitory.save(objeto);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
+
+        }
+        catch (Exception e)
+        {
+            throw new MensagemException(e.getMessage());
+        }
+    }
+
+
+    @DeleteMapping(value = "/{id_conta}", produces = "application/text" )
+	public String delete (@PathVariable("id_conta") Long id) throws Exception
+	{
+		try 
+		{
+            itemLancamentoRepository.deleteByIdLancamento( id);
+
+            objetoReporitory.deleteById(id);
+			
+			return "Registro deletado!";
+
+		} 
+		catch (Exception e)
+		{	
+			throw new MensagemException( e.getMessage());
+		}
+	}
   
 }
