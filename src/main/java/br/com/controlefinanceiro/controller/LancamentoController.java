@@ -121,8 +121,8 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
     }
 
 
-    @DeleteMapping(value = "/{id_conta}", produces = "application/text" )
-	public String delete (@PathVariable("id_conta") Long id) throws Exception
+    @DeleteMapping(value = "/{id}", produces = "application/text" )
+	public String delete (@PathVariable("id") Long id) throws Exception
 	{
 		try 
 		{
