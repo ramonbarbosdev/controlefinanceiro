@@ -23,7 +23,7 @@ import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.service.Utils;
 import br.com.controlefinanceiro.service.ValidacaoService;
 
-public abstract  class BaseController<T,D,ID> {
+public abstract  class  BaseController<T,D,ID> {
     
     protected CrudRepository<T, ID> repository;
 
