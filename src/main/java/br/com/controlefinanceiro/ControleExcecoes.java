@@ -1,99 +1,101 @@
 package br.com.controlefinanceiro;
 
-import java.sql.SQLException;
-import java.util.List;
-
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.orm.jpa.JpaSystemException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @RestControllerAdvice
-@ControllerAdvice
-public class ControleExcecoes  extends ResponseEntityExceptionHandler
-{
-	
-	//interceptar erros comuns do projeto
-	@ExceptionHandler({Exception.class, RuntimeException.class, Throwable.class})
-	@Override
-	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
-			HttpStatusCode statusCode, WebRequest request) {
-	
-		String msg = "";
-		
-		if(ex instanceof MethodArgumentNotValidException)
-		{
-			List<ObjectError> list = ((MethodArgumentNotValidException) ex).getBindingResult().getAllErrors();
-			
-			for(ObjectError objectError : list)
-			{
-				msg += objectError.getDefaultMessage();
-			}
-			
-		}
-		else
-		{
-			msg = ex.getMessage();
-		}
-		
-		ObjetoErro objetoErro = new ObjetoErro();
-		objetoErro.setError(msg);
-		
-		
-		return new ResponseEntity<>(objetoErro, headers, statusCode);
-	}
-	
-	//interceptar erros de banco de dados
-	@ExceptionHandler({DataIntegrityViolationException.class, ConstraintViolationException.class, SQLException.class})
-	protected ResponseEntity<Object> handleExcpetionDataIntegry(Exception ex)
-	{
-	
-		String msg = "";
-		
-		if(ex instanceof DataIntegrityViolationException)
-		{
-			msg = ((DataIntegrityViolationException) ex).getCause().getCause().getMessage();		
-		}
-		else if (ex instanceof ConstraintViolationException)
-		{
-			msg = ((ConstraintViolationException) ex).getCause().getCause().getMessage();	
-		}
-		else if (ex instanceof SQLException)
-		{
-			msg = ((SQLException) ex).getCause().getCause().getMessage();	
-		}	
-		else
-		{
-			msg = ex.getMessage();
-		}
-		
-		
-		ObjetoErro objetoErro = new ObjetoErro();
-		objetoErro.setError(msg);
-		objetoErro.setCode(HttpStatus.INTERNAL_SERVER_ERROR + "==>" + HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-		
-		return new ResponseEntity<>(objetoErro,HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-	
-	  @ExceptionHandler(MensagemException.class)
-	    protected ResponseEntity<Object> handleContaNaoEncontradaException(MensagemException ex) {
-	        String msg = ex.getMessage();
+public class ControleExcecoes {
 
-	        ObjetoErro objetoErro = new ObjetoErro();
-	        objetoErro.setError(msg);
-	        objetoErro.setCode(HttpStatus.NOT_FOUND + " ==> " + HttpStatus.NOT_FOUND.getReasonPhrase());
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ObjetoErro> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        ObjetoErro objetoErro = new ObjetoErro();
+        objetoErro.setError("Erro de validação: " + ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+        objetoErro.setCode(HttpStatus.BAD_REQUEST.toString());
 
-	        return new ResponseEntity<>(objetoErro, HttpStatus.NOT_FOUND);
-	    }
-	
+		System.out.println("Tipo da exceção: " + ex.getClass().getName());
+
+
+        return new ResponseEntity<>(objetoErro, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ObjetoErro> handleEntityNotFoundException(EntityNotFoundException ex) {
+        ObjetoErro objetoErro = new ObjetoErro();
+        objetoErro.setError("Entidade não encontrada: " + ex.getMessage());
+        objetoErro.setCode(HttpStatus.NOT_FOUND.toString());
+
+		System.out.println("Tipo da exceção: " + ex.getClass().getName());
+
+
+        return new ResponseEntity<>(objetoErro, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler({DataIntegrityViolationException.class, JpaSystemException.class})
+    public ResponseEntity<ObjetoErro> handleDataIntegrityAndJpaExceptions(Exception ex) {
+        ObjetoErro objetoErro = new ObjetoErro();
+        objetoErro.setError(MensagemException.tratamentoViolacaoIntegridadeDados(ex));
+        objetoErro.setCode(HttpStatus.CONFLICT.toString());
+
+		System.out.println("Tipo da exceção: " + ex.getClass().getName());
+
+
+        return new ResponseEntity<>(objetoErro, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<ObjetoErro> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex) {
+        ObjetoErro objetoErro = new ObjetoErro();
+        objetoErro.setError("Nenhum resultado encontrado: " + ex.getMessage());
+        objetoErro.setCode(HttpStatus.NOT_FOUND.toString());
+
+		System.out.println("Tipo da exceção: " + ex.getClass().getName());
+
+
+        return new ResponseEntity<>(objetoErro, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(TransactionSystemException.class)
+    public ResponseEntity<ObjetoErro> handleTransactionSystemException(TransactionSystemException ex) {
+        ObjetoErro objetoErro = new ObjetoErro();
+        objetoErro.setError(MensagemException.tratamentoTransacaoSistema(ex));
+        objetoErro.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+
+		System.out.println("Tipo da exceção: " + ex.getClass().getName());
+
+
+        return new ResponseEntity<>(objetoErro, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ObjetoErro> handleDeserializationException(HttpMessageNotReadableException ex) {
+        ObjetoErro objetoErro = new ObjetoErro();
+        objetoErro.setError(MensagemException.tratamentoMensagemHTTPIlegivel(ex));
+        objetoErro.setCode(HttpStatus.BAD_REQUEST.toString());
+
+		System.out.println("Tipo da exceção: " + ex.getClass().getName());
+
+
+        return new ResponseEntity<>(objetoErro, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ObjetoErro> handleGenericException(Exception ex) {
+        ObjetoErro objetoErro = new ObjetoErro();
+        objetoErro.setError("Erro inesperado: " + ex.getMessage());
+        objetoErro.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+
+		System.out.println("Tipo da exceção: " + ex.getClass().getName());
+
+
+        return new ResponseEntity<>(objetoErro, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

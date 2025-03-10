@@ -87,18 +87,11 @@ public abstract  class  BaseController<T,D,ID> {
 
      // ✅ Criar novo registro
     @PostMapping(value = "/", produces = "application/json")
-    public ResponseEntity<?> cadastrar(@RequestBody T objeto) throws Exception
+    public ResponseEntity<?> cadastrar(@RequestBody T objeto) 
     {
-        try
-        {
-            T objetoSalvo = repository.save(objeto);
+        T objetoSalvo = repository.save(objeto);
     
-			return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
-        }
-        catch (Exception e)
-        {
-            throw new MensagemException( e.getMessage());
-        }
+        return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/", produces = "application/json")
