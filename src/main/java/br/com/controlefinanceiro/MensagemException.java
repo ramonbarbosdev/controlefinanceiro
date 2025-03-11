@@ -65,7 +65,7 @@ public class MensagemException extends RuntimeException{
 	public static String tratamentoViolacaoIntegridadeDados(Exception ex)
 	{
         String message = ex.getMessage();
-
+		
         if (message.contains("null value in column"))
 		{
 			String nmColuna = extrairNomeColuna(message);
@@ -86,9 +86,33 @@ public class MensagemException extends RuntimeException{
 
 				return "O valor '"+valor+"' já existe para o campo '"+chave+ "'. Por favor, escolha um valor diferente.";
 			}
-			return  message;
+		
+		}
+
+		if(message.contains("still referenced from"))
+		{
+
+			//(.?) serve para pegar a informacao exata
+			String regex = "table \"(.*?)\".]";
+			Pattern pattern = Pattern.compile(regex);
+			Matcher matcher = pattern.matcher(message);
+
+
+			if (matcher.find())
+			{
+				String tabelaReferencia = matcher.group(1); 
+				
+				if(message.contains("delete from"))
+				{
+					return "Não é possivel deletar o registro porque ele está referenciado na tabela '" + tabelaReferencia+ "'.";
+
+				}
+				
+			}
+
 		}
         
+		
         return  message;
     }
 
