@@ -24,7 +24,7 @@ public class Conta {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "categoria_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "conta_seq")
 	private Long id_conta;
 	
 
@@ -37,21 +37,25 @@ public class Conta {
 	
 	@ManyToOne()
     @JoinColumn(name = "id_tipoconta", insertable = false, updatable = false)
-    private Tipo_Conta tipoconta; // Agora corretamente mapeado para a entidade TipoConta
+    private Tipo_Conta tipoconta; 
 	
 	@Column(name = "id_tipoconta")
 	private Long id_tipoconta;
 
+	@ManyToOne()
+    @JoinColumn(name = "id_statusconta", insertable = false, updatable = false)
+	private Status_Conta statusconta;
 
-	private Boolean fl_ativo;
+	@Column(name = "id_statusconta")
+	private Long id_statusconta;
 
     // Getters e Setters
-	public Boolean getFl_ativo() {
-		return fl_ativo;
+	public Long getId_statusconta() {
+		return id_statusconta;
 	}
 
-	public void setFl_ativo(Boolean fl_ativo) {
-		this.fl_ativo = fl_ativo;
+	public void setId_statusconta(Long id_statusconta) {
+		this.id_statusconta = id_statusconta;
 	}
 
 	public Long getId_tipoconta() {
