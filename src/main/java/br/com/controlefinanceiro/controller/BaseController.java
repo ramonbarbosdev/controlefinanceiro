@@ -44,45 +44,29 @@ public abstract  class  BaseController<T,D,ID> {
 
      // ✅ Buscar todos os registros
      @GetMapping(value = "/", produces = "application/json")
-    public ResponseEntity<List<?>> obterTodos() throws Exception
+    public ResponseEntity<List<?>> obterTodos() 
     {
-        try
+        List<T> entidades = (List<T>) repository.findAll();
+
+        if (entidades.isEmpty())
         {
-            List<T> entidades = (List<T>) repository.findAll();
-
-            if (entidades.isEmpty())
-            {
-                throw new MensagemException("Nenhum registro encontrada!");
-            }
-     
-
-			return new ResponseEntity<>(entidades, HttpStatus.OK);
-
-        } catch (Exception e)
-        {
-            throw new MensagemException( e.getMessage());
+            throw new MensagemException("Nenhum registro encontrada!");
         }
-       
+ 
+        return new ResponseEntity<>(entidades, HttpStatus.OK);
     }
 
      // ✅ Buscar por ID
     @GetMapping(value = "/{id}", produces = "application/json")
     public ResponseEntity<?> obterPorId(@PathVariable ID id) {
-        try
-		{
-            Optional<T> objeto =  repository.findById(id);
+        Optional<T> objeto =  repository.findById(id);
 
-            if (!objeto.isPresent())
-            {
-                throw new MensagemException("Registro não encontrado!");
-            }
+        if (!objeto.isPresent())
+        {
+            throw new MensagemException("Registro não encontrado!");
+        }
 
-			return new ResponseEntity<>( objeto, HttpStatus.OK);
-		}
-		catch (Exception e)
-		{
-				throw new MensagemException( e.getMessage());
-		}
+        return new ResponseEntity<>( objeto, HttpStatus.OK);
     }
 
      // ✅ Criar novo registro
@@ -97,33 +81,17 @@ public abstract  class  BaseController<T,D,ID> {
     @PutMapping(value = "/", produces = "application/json")
     public ResponseEntity<?> atualizar(@RequestBody T objeto) throws Exception
     {
-        try
-        {
-            T objetoSalvo = repository.save(objeto);
+        T objetoSalvo = repository.save(objeto);
     
-			return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
-        }
-        catch (Exception e)
-        {
-            throw new MensagemException( e.getMessage());
-        }
+        return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "/{id}", produces = "application/text" )
 	public String delete (@PathVariable("id") Long id) throws Exception
 	{
-		try 
-		{
-
-			 repository.deleteById((ID) id);
+        repository.deleteById((ID) id);
 			
-			return "Registro deletado!";
-
-		} 
-		catch (Exception e)
-		{	
-			throw new MensagemException( e.getMessage());
-		}
+        return "Registro deletado!";
 	}
 
    
