@@ -16,4 +16,9 @@ public interface CategoriaRepository  extends CrudRepository<Categoria, Long>  {
     @Query(value = "select cast(1 as bool) as fl_existe from categoria c where c.id_categoria = ?1", nativeQuery = true)
     Boolean existeCategoria(Long id_categoria);
 
+    
+    @Query(value = "SELECT CASE WHEN MAX(c.cd_categoria) IS NULL THEN '0' ELSE MAX(c.cd_categoria) END FROM Categoria c", nativeQuery = true)
+    Long obterSequencial();
+
+
 }

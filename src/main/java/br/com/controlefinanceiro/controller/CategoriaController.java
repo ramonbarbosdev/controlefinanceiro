@@ -55,11 +55,26 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/categoria", produces = "application/json")
 public class CategoriaController  extends BaseController<Categoria, CategoriaDTO, Long>
 {
+	@Autowired
+	private CategoriaRepository objetoRepository;
+
 
 	public CategoriaController(CrudRepository<Categoria, Long> repository) {
 		super(repository);
 	}
 
+	
+    @GetMapping(value = "/sequencia", produces = "application/json")
+    public ResponseEntity<?> obterSequencia()
+	{
+		Long ultima_sequencia = objetoRepository.obterSequencial() ;
+		
+		
+	
+		Long sq_sequencia = ultima_sequencia + 1;
+
+        return new ResponseEntity<>( sq_sequencia, HttpStatus.OK);
+    }
 	
 	
 }

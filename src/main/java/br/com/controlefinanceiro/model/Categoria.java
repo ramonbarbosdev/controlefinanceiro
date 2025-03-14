@@ -24,6 +24,10 @@ public class Categoria {
     @Column(unique = true, nullable = false)
     private String nm_categoria;
 
+    @NotNull(message = "Codigo é obrigatório!")
+    @Column(unique = true, nullable = false)
+    private String cd_categoria;
+
     public Long getId_categoria() {
         return id_categoria;
     }
@@ -46,5 +50,13 @@ public class Categoria {
 
     public void setNm_categoria(String nm_categoria) {
         this.nm_categoria = nm_categoria;
+    }
+
+    public String getCd_categoria() {
+        return cd_categoria;
+    }
+
+    public void setCd_categoria(String cd_categoria) {
+        this.cd_categoria = cd_categoria;
     }
 }
