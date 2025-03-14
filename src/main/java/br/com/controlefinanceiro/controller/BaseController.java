@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.config.RelacionamentoConfig;
+import br.com.controlefinanceiro.excecoes.MensagemException;
 import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.service.Utils;
 import br.com.controlefinanceiro.service.ValidacaoService;

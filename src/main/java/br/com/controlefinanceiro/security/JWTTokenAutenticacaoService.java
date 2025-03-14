@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.apache.logging.log4j.util.Base64Util;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.codec.Base64;
@@ -80,12 +82,10 @@ public class JWTTokenAutenticacaoService {
     	SecretKeySpec secretKey = createSecretKey();
     	
     	String token = request.getHeader(HEADER_STRING);
-    	//System.out.println("Token recebido: " + token);  
     	
         if (token != null && token.startsWith(TOKEN_PREFIX))
         {
         	
-            // Remove o prefixo "Bearer " e faz o parsing do token
             String jwt = token.replace(TOKEN_PREFIX, "").trim();
 
             try
@@ -93,7 +93,7 @@ public class JWTTokenAutenticacaoService {
                 String user = Jwts.parserBuilder()
                         .setSigningKey(secretKey)
                         .build()
-                        .parseClaimsJws(jwt)  // Use a variável `jwt`
+                        .parseClaimsJws(jwt)  
                         .getBody()
                         .getSubject();
 
@@ -121,14 +121,17 @@ public class JWTTokenAutenticacaoService {
             }
             catch (Exception e)
             {
-            	 System.out.println("Erro na autenticação: " + e.getMessage());
-        		 try {
-					response.getOutputStream().println("TOKEN expirado, faça um novo login!");
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}             
-        
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                System.out.println("Erro na autenticação: " + e.getMessage());
+
+                try {
+                    response.getWriter().write("{\"error\": \"Erro na autenticação: " + e.getMessage() + "\"}");
+
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }      
+             
             		 
             }
         }
@@ -138,6 +141,7 @@ public class JWTTokenAutenticacaoService {
         // Não autorizado
         return null;
     }
+    
 	private void liberacaoCors(HttpServletResponse response)
 	{
 		

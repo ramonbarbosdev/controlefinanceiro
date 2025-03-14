@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.DTO.CategoriaDTO;
 import br.com.controlefinanceiro.DTO.Item_LancamentoDTO;
 import br.com.controlefinanceiro.DTO.UsuarioDTO;
 import br.com.controlefinanceiro.config.RelacionamentoConfig;
+import br.com.controlefinanceiro.excecoes.MensagemException;
 import br.com.controlefinanceiro.model.Categoria;
 import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.model.Item_Lancamento;

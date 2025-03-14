@@ -1,4 +1,4 @@
-package br.com.controlefinanceiro;
+package br.com.controlefinanceiro.excecoes;
 
 import java.util.HashMap;
 import java.util.Map;

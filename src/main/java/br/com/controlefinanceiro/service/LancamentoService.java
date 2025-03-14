@@ -127,14 +127,14 @@ public class LancamentoService {
     {
         Long id_conta = objeto.getId_conta();
         Conta conta = contaRepository.findById(id_conta).get();
-        Boolean fl_contaativa = conta.getFl_ativo();
+        Long id_contaativa = conta.getId_statusconta();
 
         if(id_conta == null)
         {
             throw new RuntimeException("Conta não pode ser nula e deve estar ativa");
         }
 
-        if(fl_contaativa == null || !fl_contaativa)
+        if(id_contaativa == null )
         {
             throw new RuntimeException("Conta deve estar ativa");
         }

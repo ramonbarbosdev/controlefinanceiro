@@ -1,19 +1,54 @@
-package br.com.controlefinanceiro;
+package br.com.controlefinanceiro.excecoes;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+
+import java.security.SignatureException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
+
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @RestControllerAdvice
 public class ControleExcecoes {
+
+   
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ObjetoErro> handleExpiredJwtException(ExpiredJwtException e) {
+
+        ObjetoErro objetoErro = new ObjetoErro();
+        objetoErro.setError("TOKEN expirado, faça um novo login!");
+        objetoErro.setCode(HttpStatus.BAD_REQUEST.toString());
+
+		System.out.println("Tipo da exceção: " + e.getClass().getName());
+
+
+        return new ResponseEntity<>(objetoErro, HttpStatus.UNAUTHORIZED);
+       
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<ObjetoErro> handleSignatureException(SignatureException e) {
+        
+        ObjetoErro objetoErro = new ObjetoErro();
+        objetoErro.setError("Assinatura do token inválida!");
+        objetoErro.setCode(HttpStatus.BAD_REQUEST.toString());
+
+		System.out.println("Tipo da exceção: " + e.getClass().getName());
+
+        return new ResponseEntity<>(objetoErro, HttpStatus.UNAUTHORIZED);
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ObjetoErro> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -23,8 +58,8 @@ public class ControleExcecoes {
 
 		System.out.println("Tipo da exceção: " + ex.getClass().getName());
 
+        return new ResponseEntity<>(objetoErro, HttpStatus.UNAUTHORIZED);
 
-        return new ResponseEntity<>(objetoErro, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

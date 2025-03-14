@@ -14,9 +14,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import br.com.controlefinanceiro.MensagemException;
 import br.com.controlefinanceiro.DTO.ContaDTO;
 import br.com.controlefinanceiro.config.RelacionamentoConfig;
+import br.com.controlefinanceiro.excecoes.MensagemException;
 import br.com.controlefinanceiro.model.Conta;
 import jakarta.annotation.PostConstruct;
 

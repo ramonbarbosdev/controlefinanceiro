@@ -1,4 +1,4 @@
-package br.com.controlefinanceiro;
+package br.com.controlefinanceiro.excecoes;
 
 public class ObjetoErro {
 
