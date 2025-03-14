@@ -61,10 +61,10 @@ public abstract  class  BaseController<T,D,ID> {
     public ResponseEntity<?> obterPorId(@PathVariable ID id) {
         Optional<T> objeto =  repository.findById(id);
 
-        if (!objeto.isPresent())
-        {
-            throw new MensagemException("Registro não encontrado!");
-        }
+        // if (!objeto.isPresent())
+        // {
+        //     throw new MensagemException("Registro não encontrado!");
+        // }
 
         return new ResponseEntity<>( objeto, HttpStatus.OK);
     }
@@ -83,7 +83,7 @@ public abstract  class  BaseController<T,D,ID> {
     {
         T objetoSalvo = repository.save(objeto);
     
-        return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
+        return new ResponseEntity<>(objetoSalvo, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}", produces = "application/text" )

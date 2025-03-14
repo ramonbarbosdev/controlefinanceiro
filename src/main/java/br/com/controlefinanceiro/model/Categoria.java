@@ -1,6 +1,7 @@
 package br.com.controlefinanceiro.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -24,9 +25,10 @@ public class Categoria {
     @Column(unique = true, nullable = false)
     private String nm_categoria;
 
-    @NotNull(message = "Codigo é obrigatório!")
+    @NotBlank(message = "Codigo é obrigatório!")
     @Column(unique = true, nullable = false)
     private String cd_categoria;
+
 
     public Long getId_categoria() {
         return id_categoria;
