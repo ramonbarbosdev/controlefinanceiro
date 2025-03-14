@@ -67,15 +67,17 @@ public class ContaController extends BaseController<Conta, ContaDTO, Long>
 	}
 	
 
-    @GetMapping(value = "/conta/sequencia/{id}", produces = "application/json")
-    public ResponseEntity<?> obterSequencia(@PathVariable ID id)
+    @GetMapping(value = "/sequencia", produces = "application/json")
+    public ResponseEntity<?> obterSequencia()
 	{
-		Long sq_sequencia = objetoRepository.obterSequencial("cd_conta");
+		Long ultima_sequencia = objetoRepository.obterSequencial();
+        Long sq_sequencia =  null;
 
-        if (sq_sequencia == null)
+        if (ultima_sequencia == null)
         {
             throw new MensagemException("Sequencia não encontrado!");
         }
+        sq_sequencia = ultima_sequencia + 1;
 
         return new ResponseEntity<>( sq_sequencia, HttpStatus.OK);
     }
