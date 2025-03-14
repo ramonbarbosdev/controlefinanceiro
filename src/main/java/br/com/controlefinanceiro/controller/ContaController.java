@@ -66,26 +66,16 @@ public class ContaController extends BaseController<Conta, ContaDTO, Long>
 			
 	}
 	
-
     @GetMapping(value = "/sequencia", produces = "application/json")
     public ResponseEntity<?> obterSequencia()
 	{
-		Long ultima_sequencia = objetoRepository.obterSequencial();
-        Long sq_sequencia =  null;
-
-        if (ultima_sequencia == null)
-        {
-            throw new MensagemException("Sequencia não encontrado!");
-        }
-        sq_sequencia = ultima_sequencia + 1;
+		Long ultima_sequencia = objetoRepository.obterSequencial() ;
+	
+		Long sq_sequencia = ultima_sequencia + 1;
 
         return new ResponseEntity<>( sq_sequencia, HttpStatus.OK);
     }
 
-
-	
-
-	
 
 		
 }

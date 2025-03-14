@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -41,6 +42,20 @@ public class Lancamento {
     @NotNull(message = "Status é obrigatório!")
     @Column(name = "id_statuslancamento")
     private Long id_statuslancamento;
+
+    @NotBlank(message = "A Codigo  é obrigatorio!")
+	@Column(unique = true, nullable = false)
+	private String cd_lancamento;
+	
+    public String  getCd_lancamento ()
+    {
+        return cd_lancamento;
+    }    
+
+    public void  setCd_lancamento (String  cd_lancamento )
+    {
+        this.cd_lancamento = cd_lancamento;
+    }
 
     //Listagem de itens
     @OneToMany(mappedBy = "lancamento", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)

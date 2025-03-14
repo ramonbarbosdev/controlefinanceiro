@@ -39,6 +39,7 @@ import br.com.controlefinanceiro.model.Tipo_Operacao;
 import br.com.controlefinanceiro.model.Usuario;
 import br.com.controlefinanceiro.repository.CategoriaRepository;
 import br.com.controlefinanceiro.repository.ContaRepository;
+import br.com.controlefinanceiro.repository.StatusLancamentoRepository;
 import br.com.controlefinanceiro.repository.TipoCategoriaRepository;
 import br.com.controlefinanceiro.repository.TipoContaRepository;
 import br.com.controlefinanceiro.service.SequenciaService;
@@ -51,28 +52,19 @@ import java.util.stream.Collectors;
 
 
 
-@RestController 
-@RequestMapping(value = "/categoria", produces = "application/json")
-public class CategoriaController  extends BaseController<Categoria, CategoriaDTO, Long>
-{
-	@Autowired
-	private CategoriaRepository objetoRepository;
+// @RestController 
+// @RequestMapping(value = "/statuslancamento", produces = "application/json")
+// public class StatusLancamentoController  extends BaseController<Status_Lancamento, CategoriaDTO, Long>
+// {
+// 	@Autowired
+// 	private StatusLancamentoRepository objetoRepository;
 
 
-	public CategoriaController(CrudRepository<Categoria, Long> repository) {
-		super(repository);
-	}
+// 	public StatusLancamentoController(CrudRepository<Status_Lancamento, Long> repository) {
+// 		super(repository);
+// 	}
 
 	
-    @GetMapping(value = "/sequencia", produces = "application/json")
-    public ResponseEntity<?> obterSequencia()
-	{
-		Long ultima_sequencia = objetoRepository.obterSequencial() ;
-	
-		Long sq_sequencia = ultima_sequencia + 1;
-
-        return new ResponseEntity<>( sq_sequencia, HttpStatus.OK);
-    }
 	
 	
-}
+// }

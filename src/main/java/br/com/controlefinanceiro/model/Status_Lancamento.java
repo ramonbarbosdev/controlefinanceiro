@@ -1,6 +1,5 @@
 package br.com.controlefinanceiro.model;
 
-import java.time.LocalDate;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
