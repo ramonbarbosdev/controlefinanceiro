@@ -25,24 +25,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.controlefinanceiro.DTO.CategoriaDTO;
 import br.com.controlefinanceiro.DTO.Item_LancamentoDTO;
+import br.com.controlefinanceiro.DTO.Tipo_CategoriaDTO;
 import br.com.controlefinanceiro.DTO.UsuarioDTO;
 import br.com.controlefinanceiro.config.RelacionamentoConfig;
 import br.com.controlefinanceiro.excecoes.MensagemException;
+import br.com.controlefinanceiro.DTO.CategoriaDTO;
 import br.com.controlefinanceiro.model.Categoria;
 import br.com.controlefinanceiro.model.Conta;
 import br.com.controlefinanceiro.model.Item_Lancamento;
 import br.com.controlefinanceiro.model.Lancamento;
 import br.com.controlefinanceiro.model.Metodo_Pagamento;
-import br.com.controlefinanceiro.model.Status_Lancamento;
 import br.com.controlefinanceiro.model.Tipo_Categoria;
 import br.com.controlefinanceiro.model.Tipo_Conta;
 import br.com.controlefinanceiro.model.Tipo_Operacao;
 import br.com.controlefinanceiro.model.Usuario;
 import br.com.controlefinanceiro.repository.CategoriaRepository;
 import br.com.controlefinanceiro.repository.ContaRepository;
-import br.com.controlefinanceiro.repository.StatusLancamentoRepository;
+import br.com.controlefinanceiro.repository.MetodoPagamentoRepository;
 import br.com.controlefinanceiro.repository.TipoCategoriaRepository;
 import br.com.controlefinanceiro.repository.TipoContaRepository;
+import br.com.controlefinanceiro.repository.TipoOperacaoRepository;
 import br.com.controlefinanceiro.service.SequenciaService;
 import br.com.controlefinanceiro.service.Utils;
 import br.com.controlefinanceiro.service.ValidacaoService;
@@ -54,18 +56,16 @@ import java.util.stream.Collectors;
 
 
 @RestController 
-@RequestMapping(value = "/statuslancamento", produces = "application/json")
-public class StatusLancamentoController  extends BaseController<Status_Lancamento, CategoriaDTO, Long>
+@RequestMapping(value = "/tipooperacao", produces = "application/json")
+public class TipoOperacaoController extends BaseController<Tipo_Operacao, Tipo_CategoriaDTO, Long>
 {
+	
 	@Autowired
-	private StatusLancamentoRepository objetoRepository;
+	private TipoOperacaoRepository objetoRepository;
 
-
-	public StatusLancamentoController(CrudRepository<Status_Lancamento, Long> repository) {
+	public TipoOperacaoController(CrudRepository<Tipo_Operacao, Long> repository)
+	{
 		super(repository);
 	}
-
-	
-	
 	
 }

@@ -36,7 +36,7 @@ import java.util.Map;
 public class LancamentoController extends BaseController<Lancamento, LancamentoDTO,Long> {
 
     @Autowired
-    private LancamentoRepository objetoReporitory;
+    private LancamentoRepository objetoRepository;
 
     @Autowired
     private ItemLancamentoRepository itemLancamentoRepository;
@@ -61,7 +61,7 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
         {
             objeto.setVl_lancamento(0.0);
             lancamentoService.validacaoCadastrar(objeto);
-            objeto = objetoReporitory.save(objeto);
+            objeto = objetoRepository.save(objeto);
 
             Double vl_lancamento = 0.0;
 
@@ -82,7 +82,7 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
 
             objeto.setVl_lancamento(vl_lancamento);
             lancamentoService.validarValorTotalItem(itens, vl_lancamento);
-            objeto = objetoReporitory.save(objeto);
+            objeto = objetoRepository.save(objeto);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
         }
@@ -109,7 +109,7 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
                 }
             }
 
-            objetoReporitory.save(objeto);
+            objetoRepository.save(objeto);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
 
@@ -128,7 +128,7 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
 		{
             itemLancamentoRepository.deleteByIdLancamento( id);
 
-            objetoReporitory.deleteById(id);
+            objetoRepository.deleteById(id);
 			
 			return "Registro deletado!";
 
@@ -138,5 +138,15 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
 			throw new MensagemException( e.getMessage());
 		}
 	}
+
+    @GetMapping(value = "/sequencia", produces = "application/json")
+    public ResponseEntity<?> obterSequencia()
+	{
+		Long ultima_sequencia = objetoRepository.obterSequencial() ;
+	
+		Long sq_sequencia = ultima_sequencia + 1;
+
+        return new ResponseEntity<>( sq_sequencia, HttpStatus.OK);
+    }
   
 }
