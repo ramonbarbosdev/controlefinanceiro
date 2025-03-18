@@ -10,7 +10,7 @@ public class Status_LancamentoDTO {
     public Status_LancamentoDTO() {} // Construtor necessário para serialização
 
 	public Status_LancamentoDTO(Status_Lancamento objeto) {
-		this.id_statuslancamento = objeto.getId_status_lancamento();
+		this.id_statuslancamento = objeto.getId_statuslancamento();
 		this.ds_statuslancamento = objeto.getDs_statuslancamento();
 	}
 

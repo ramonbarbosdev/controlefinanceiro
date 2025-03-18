@@ -17,11 +17,11 @@ public class Status_Lancamento {
     @Column( nullable = false)
     private String ds_statuslancamento;
 
-    public Long getId_status_lancamento() {
+    public Long getId_statuslancamento() {
         return id_statuslancamento;
     }
 
-    public void setId_status_lancamento(Long id_statuslancamento) {
+    public void setId_statuslancamento(Long id_statuslancamento) {
         this.id_statuslancamento = id_statuslancamento;
     }
 

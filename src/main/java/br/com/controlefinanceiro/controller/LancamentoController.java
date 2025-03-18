@@ -30,6 +30,8 @@ import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/lancamento")
@@ -57,69 +59,75 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
     @PostMapping(value = "/cadastrar/", produces = "application/json")
     public ResponseEntity<Lancamento> criarLancamento(@RequestBody Lancamento objeto)
 	{
-        try
+        objeto.setVl_lancamento(0.0);
+        lancamentoService.validacaoCadastrar(objeto);
+        objeto = objetoRepository.save(objeto);
+
+        Double vl_lancamento = 0.0;
+
+        //criar uma funcao de salvar os itens do lancamento
+        List<Item_Lancamento> itens = objeto.getItenslancamento();
+        if(itens != null)
         {
-            objeto.setVl_lancamento(0.0);
-            lancamentoService.validacaoCadastrar(objeto);
-            objeto = objetoRepository.save(objeto);
-
-            Double vl_lancamento = 0.0;
-
-            //criar uma funcao de salvar os itens do lancamento
-            List<Item_Lancamento> itens = objeto.getItenslancamento();
-            if(itens != null)
+            for(Item_Lancamento item : itens)
             {
-                for(Item_Lancamento item : itens)
-                {
-                    item.setId_lancamento(objeto.getId_lancamento());
+                item.setId_lancamento(objeto.getId_lancamento());
 
-                    itemLancamentoService.validacaoCadastrar(item, itens, objeto.getId_lancamento());
+                itemLancamentoService.validacaoCadastrar(item, itens, objeto.getId_lancamento());
 
-                    item = itemLancamentoRepository.save(item);
-                    vl_lancamento += item.getVl_movimento();
-                }
+                item = itemLancamentoRepository.save(item);
+                vl_lancamento += item.getVl_movimento();
             }
-
-            objeto.setVl_lancamento(vl_lancamento);
-            lancamentoService.validarValorTotalItem(itens, vl_lancamento);
-            objeto = objetoRepository.save(objeto);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
         }
-        catch(Exception e)
-        {
-           throw new MensagemException( e.getMessage());
-        }
+
+        objeto.setVl_lancamento(vl_lancamento);
+        lancamentoService.validarValorTotalItem(itens, vl_lancamento);
+        objeto = objetoRepository.save(objeto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
     }
 
-    @PutMapping(value = "/atualizar/", produces = "application/json")
-    public ResponseEntity<Lancamento> atualizarLancamento( @RequestBody Lancamento objeto) {
-        try {
-          
-            lancamentoService.validacaoCadastrar(objeto);
-            
-            List<Item_Lancamento> itens = objeto.getItenslancamento();
-            if (itens != null)
-            {
-                for (Item_Lancamento item : itens)
-                {
-                    item.setId_lancamento(objeto.getId_lancamento());
-                    itemLancamentoService.validacaoCadastrar(item, itens, objeto.getId_lancamento());
-                    itemLancamentoRepository.save(item);
-                }
-            }
+   @PutMapping(value = "/atualizar/", produces = "application/json")
+    public ResponseEntity<Lancamento> atualizarLancamento(@RequestBody Lancamento objeto)
+    {
+        lancamentoService.validacaoCadastrar(objeto);
+        
+        List<Item_Lancamento> itensExistentes = (List<Item_Lancamento>) itemLancamentoRepository.findByLancamentoId(objeto.getId_lancamento());
 
-            objetoRepository.save(objeto);
+        Set<Long> idsNovos = objeto.getItenslancamento().stream()
+            .map(Item_Lancamento::getId_itemlancamento) 
+            .collect(Collectors.toSet());
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
-
-        }
-        catch (Exception e)
+        
+        for (Item_Lancamento itemExistente : itensExistentes)
         {
-            throw new MensagemException(e.getMessage());
+            if (!idsNovos.contains(itemExistente.getId_itemlancamento()))
+            {
+                itemLancamentoRepository.delete(itemExistente);
+            }
         }
-    }
 
+        Double vl_lancamento = 0.0;
+
+        List<Item_Lancamento> itens = objeto.getItenslancamento();
+        if (itens != null)
+        {
+            for (Item_Lancamento item : itens)
+            {
+                item.setId_lancamento(objeto.getId_lancamento());
+                itemLancamentoService.validacaoCadastrar(item, itens, objeto.getId_lancamento());
+                itemLancamentoRepository.save(item);
+
+                vl_lancamento += item.getVl_movimento();
+            }
+        }
+
+        objeto.setVl_lancamento(vl_lancamento);
+        lancamentoService.validarValorTotalItem(itens, vl_lancamento);
+        objetoRepository.save(objeto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(objeto);
+    }
 
     @DeleteMapping(value = "/{id}", produces = "application/text" )
 	public String delete (@PathVariable("id") Long id) throws Exception

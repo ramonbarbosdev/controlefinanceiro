@@ -122,6 +122,17 @@ public class ControleExcecoes {
         return new ResponseEntity<>(objetoErro, HttpStatus.BAD_REQUEST);
     }
 
+    // @ExceptionHandler(NullPointerException.class)
+    // public ResponseEntity<ObjetoErro> handlePointerException(Exception ex) {
+    //     ObjetoErro objetoErro = new ObjetoErro();
+    //     objetoErro.setError("Erro inesperado: " + ex.getMessage());
+    //     objetoErro.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+
+	// 	System.out.println("Tipo da exceção: " + ex.getClass().getName());
+
+
+    //     return new ResponseEntity<>(objetoErro, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ObjetoErro> handleGenericException(Exception ex) {
         ObjetoErro objetoErro = new ObjetoErro();
