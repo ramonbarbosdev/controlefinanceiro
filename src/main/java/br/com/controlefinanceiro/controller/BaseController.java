@@ -91,7 +91,7 @@ public abstract  class  BaseController<T,D,ID> {
 	{
         repository.deleteById((ID) id);
 			
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Registro deletado!.\"}");
+        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Registro deletado!.\"}");
 
 	}
 
