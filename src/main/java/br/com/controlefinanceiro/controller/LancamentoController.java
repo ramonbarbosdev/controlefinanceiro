@@ -138,7 +138,7 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
 
             objetoRepository.deleteById(id);
 			
-            return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Registro deletado!.\"}");
+            return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Registro deletado!\"}");
 
 		} 
 		catch (Exception e)
