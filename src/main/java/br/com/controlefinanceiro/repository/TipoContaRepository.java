@@ -11,5 +11,7 @@ import br.com.controlefinanceiro.model.Tipo_Conta;
 @Repository
 public interface TipoContaRepository  extends CrudRepository<Tipo_Conta, Long>  {
 	
+    @Query(value = "SELECT CASE WHEN MAX(c.cd_tipoconta) IS NULL THEN '0' ELSE MAX(c.cd_tipoconta) END FROM Tipo_Conta c", nativeQuery = true)
+    Long obterSequencial();
 
 }

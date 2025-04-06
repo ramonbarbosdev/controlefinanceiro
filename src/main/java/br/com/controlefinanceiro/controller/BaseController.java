@@ -87,11 +87,12 @@ public abstract  class  BaseController<T,D,ID> {
     }
 
     @DeleteMapping(value = "/{id}", produces = "application/text" )
-	public String delete (@PathVariable("id") Long id) throws Exception
+	public ResponseEntity<?> delete (@PathVariable("id") Long id) throws Exception
 	{
         repository.deleteById((ID) id);
 			
-        return "Registro deletado!";
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Registro deletado!.\"}");
+
 	}
 
    

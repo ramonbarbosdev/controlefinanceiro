@@ -130,7 +130,7 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
     }
 
     @DeleteMapping(value = "/{id}", produces = "application/text" )
-	public String delete (@PathVariable("id") Long id) throws Exception
+	public ResponseEntity<?> delete (@PathVariable("id") Long id) throws Exception
 	{
 		try 
 		{
@@ -138,7 +138,8 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
 
             objetoRepository.deleteById(id);
 			
-			return "Registro deletado!";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Registro deletado!.\"}");
+
 
 		} 
 		catch (Exception e)
