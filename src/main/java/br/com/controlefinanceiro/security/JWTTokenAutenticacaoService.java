@@ -76,7 +76,8 @@ public class JWTTokenAutenticacaoService {
     }
 
     // Retorna o usuário validado com token ou, caso não seja válido, retorna null
-    public Authentication getAuthentication(HttpServletRequest request, HttpServletResponse response) {
+    public Authentication getAuthentication(HttpServletRequest request, HttpServletResponse response)
+    {
        
     	SecretKeySpec secretKey = createSecretKey();
     	
