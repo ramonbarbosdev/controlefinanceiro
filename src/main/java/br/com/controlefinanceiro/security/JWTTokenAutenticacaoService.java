@@ -57,12 +57,11 @@ public class JWTTokenAutenticacaoService {
     public void addAuthentication(HttpServletResponse response, String username) throws Exception {
       
     	SecretKeySpec secretKey = createSecretKey();
-    	
-    	// Geração de token
+    
         String JWT = Jwts.builder()
                 .setSubject(username)
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, secretKey) // Usando chave simples
+                .signWith(SignatureAlgorithm.HS512, secretKey) 
                 .compact();
         
         String token = TOKEN_PREFIX + " " + JWT;
