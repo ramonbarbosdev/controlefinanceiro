@@ -18,8 +18,10 @@ import br.com.controlefinanceiro.ApplicationContextLoad;
 import br.com.controlefinanceiro.model.Usuario;
 import br.com.controlefinanceiro.repository.UsuarioRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,29 +34,18 @@ import javax.crypto.spec.SecretKeySpec;
 @Service
 public class JWTTokenAutenticacaoService {
 
-    // Tempo de validade do token em 2 dias
-    private static final long EXPIRATION_TIME = 172800000;
-
-    // Prefixo padrão de token
+    private static final long EXPIRATION_TIME = 172800000; // 2 dias
     private static final String TOKEN_PREFIX = "Bearer ";
-
     private static final String HEADER_STRING = "Authorization";
 
-    // Chave secreta forte
+    private static final String SECRET_KEY_BASE64 = "HaqrDaAaICtFZNXjm5Q3dPNgAZX+bnf6efMy2HuIO1Iq928rcmtTltoAFhsROHxNwtcHjB6FWudgjqxBMXAP8w==";
 
-    private static final String SECRET_KEY_BASE64 = "HaqrDaAaICtFZNXjm5Q3dPNgAZX+bnf6efMy2HuIO1Iq928rcmtTltoAFhsROHxN\r\nwtcHjB6FWudgjqxBMXAP8w==";
-    
-  
-    public static SecretKeySpec createSecretKey()
-    {
-  
-    	 String cleanedKey = SECRET_KEY_BASE64.replaceAll("\\s", "");
-
-         byte[] decodedKey = java.util.Base64.getDecoder().decode(cleanedKey); 
-
-
-         return new SecretKeySpec(decodedKey,  "HmacSHA512");
+    public static SecretKeySpec createSecretKey() {
+        String cleanedKey = SECRET_KEY_BASE64.replaceAll("\\s", "");
+        byte[] decodedKey = java.util.Base64.getDecoder().decode(cleanedKey);
+        return new SecretKeySpec(decodedKey, "HmacSHA512");
     }
+
     public String addAuthentication(HttpServletResponse response, String username) throws Exception {
         SecretKeySpec secretKey = createSecretKey();
 
@@ -79,79 +70,85 @@ public class JWTTokenAutenticacaoService {
         return token;
     }
 
-    // Retorna o usuário validado com token ou, caso não seja válido, retorna null
     public Authentication getAuthentication(HttpServletRequest request, HttpServletResponse response)
     {
-       
-    	SecretKeySpec secretKey = createSecretKey();
-    	
-    	String token = request.getHeader(HEADER_STRING);
-    	
-        if (token != null && token.startsWith(TOKEN_PREFIX))
+        SecretKeySpec secretKey = createSecretKey();
+        String token = request.getHeader(HEADER_STRING);
+
+        String cookieToken = obterTokenCookie(request);
+
+        if (cookieToken != null && !cookieToken.isEmpty()) {
+            token = TOKEN_PREFIX + cookieToken;
+        }
+        else
         {
-        	
+            token = request.getHeader(HEADER_STRING);
+        }
+
+        if (token != null && token.startsWith(TOKEN_PREFIX)) {
             String jwt = token.replace(TOKEN_PREFIX, "").trim();
 
-            try
-            {
+            try {
                 String user = Jwts.parserBuilder()
                         .setSigningKey(secretKey)
                         .build()
-                        .parseClaimsJws(jwt)  
+                        .parseClaimsJws(jwt)
                         .getBody()
                         .getSubject();
 
-                if (user != null)
-                {
+                if (user != null) {
                     Usuario usuario = ApplicationContextLoad.getApplicationContext()
                             .getBean(UsuarioRepository.class)
                             .findUserByLogin(user);
 
-                    if (usuario != null)
-                    {
-                    	//comparar o token gerado com o token no banco de dados
-                    	if(jwt.equalsIgnoreCase(usuario.getToken())) 
-                    	{
-                    		 return new UsernamePasswordAuthenticationToken(
-                                     usuario.getLogin(),
-                                     usuario.getSenha(),
-                                     usuario.getAuthorities());
-                    	}
-                    	
-                       
+                    if (usuario != null && jwt.equalsIgnoreCase(usuario.getToken())) {
+                        return new UsernamePasswordAuthenticationToken(
+                                usuario.getLogin(),
+                                usuario.getSenha(),
+                                usuario.getAuthorities());
                     }
                 }
-                
-            }
-            catch (Exception e)
-            {
+
+            } 
+            catch (ExpiredJwtException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
-                System.out.println("Erro na autenticação: " + e.getMessage());
-
+                try {
+                    response.getWriter().write("{\"error\": \"Token expirado.\"}");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            catch (MalformedJwtException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                try {
+                    response.getWriter().write("{\"error\": \"Token malformado.\"}");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            catch (Exception e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
                 try {
                     response.getWriter().write("{\"error\": \"Erro na autenticação: " + e.getMessage() + "\"}");
-
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }      
-             
-            		 
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
-        }
-        
-        liberacaoCors(response);
 
-        // Não autorizado
+        }
+
+        liberacaoCors(response);
         return null;
     }
-
 
     private void inserirJwtCookie(String jwt, HttpServletResponse response) {
         Cookie cookie = new Cookie("access_token", jwt);
         cookie.setHttpOnly(true);
         cookie.setSecure(false); 
-        cookie.setPath("/syncdb");
+        cookie.setPath("/");
         cookie.setMaxAge(3600); // Expiração de 1 hora
         
         response.addCookie(cookie);  
@@ -173,27 +170,32 @@ public class JWTTokenAutenticacaoService {
         return null;
     }
 
-    
-	private void liberacaoCors(HttpServletResponse response)
-	{
-		
-		if (response.getHeader("Access-Control-Allow-Origin") == null) {
-			response.addHeader("Access-Control-Allow-Origin", "*");
-		}
-		
-		if (response.getHeader("Access-Control-Allow-Headers") == null) {
-			response.addHeader("Access-Control-Allow-Headers", "*");
-		}
-		
-		
-		if (response.getHeader("Access-Control-Request-Headers") == null) {
-			response.addHeader("Access-Control-Request-Headers", "*");
-		}
-		
-		if(response.getHeader("Access-Control-Allow-Methods") == null) {
-			response.addHeader("Access-Control-Allow-Methods", "*");
-		}
+    private void deletarTokenCookie(HttpServletResponse response)
+    {
+        Cookie cookie = new Cookie("access_token", "");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); 
+        cookie.setPath("/");
+        cookie.setMaxAge(3600); // Expiração de 1 hora
+        
+        response.addCookie(cookie);  
+    }
 
-		
-	}
+    private void liberacaoCors(HttpServletResponse response) {
+        if (response.getHeader("Access-Control-Allow-Origin") == null) {
+            response.addHeader("Access-Control-Allow-Origin", "*");
+        }
+
+        if (response.getHeader("Access-Control-Allow-Headers") == null) {
+            response.addHeader("Access-Control-Allow-Headers", "*");
+        }
+
+        if (response.getHeader("Access-Control-Request-Headers") == null) {
+            response.addHeader("Access-Control-Request-Headers", "*");
+        }
+
+        if (response.getHeader("Access-Control-Allow-Methods") == null) {
+            response.addHeader("Access-Control-Allow-Methods", "*");
+        }
+    }
 }
