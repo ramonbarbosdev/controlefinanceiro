@@ -1,5 +1,6 @@
 package br.com.controlefinanceiro.security;
 
+
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import br.com.controlefinanceiro.service.ImplementacaoUserDetailsService;
 
+
 @Configuration
 @EnableWebSecurity
 public class WebConfigSecurity {
@@ -31,23 +33,26 @@ public class WebConfigSecurity {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
       
-    	http
+    	return http  
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())  // Desabilita CSRF (necessário para APIs stateless)
+            .csrf(csrf -> csrf.disable())  
             .authorizeHttpRequests(auth -> auth
-            		.requestMatchers(HttpMethod.OPTIONS,"/**", "/index", "/login").permitAll()   // Permite acesso público
-            	    .anyRequest().authenticated() 
+                    .requestMatchers(HttpMethod.POST, "/auth/login").permitAll() 
+                    .requestMatchers(HttpMethod.POST, "/auth/register").permitAll() 
+            		.requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+            		.requestMatchers(HttpMethod.OPTIONS,"/index").permitAll()
+            		.requestMatchers(HttpMethod.OPTIONS,"/ws/**").permitAll()
+                    .anyRequest().authenticated() 
             )
             .logout(logout -> logout
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))  // Define o caminho para logout
-                .logoutSuccessUrl("/index")  // Redireciona para a página inicial após logout
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))  
+                .logoutSuccessUrl("/index")  
                 .permitAll()
             )
             .addFilterBefore(new JwtApiAutenticacaoFilter(), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTLoginFilter("/login", authenticationManager), UsernamePasswordAuthenticationFilter.class)
-            .httpBasic();  // Permite autenticação básica (se necessário)
+            // .addFilterBefore(new JWTLoginFilter("/login", authenticationManager), UsernamePasswordAuthenticationFilter.class)
+            .build();  
 
-        return http.build();
     }
 
     @Bean
@@ -63,7 +68,7 @@ public class WebConfigSecurity {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Libera o Angular
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:3000")); // Libera o Angular
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true); 

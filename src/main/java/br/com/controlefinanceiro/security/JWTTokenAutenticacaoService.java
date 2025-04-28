@@ -21,6 +21,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -54,25 +55,28 @@ public class JWTTokenAutenticacaoService {
 
          return new SecretKeySpec(decodedKey,  "HmacSHA512");
     }
-    public void addAuthentication(HttpServletResponse response, String username) throws Exception {
-      
-    	SecretKeySpec secretKey = createSecretKey();
-    
-        String JWT = Jwts.builder()
+    public String addAuthentication(HttpServletResponse response, String username) throws Exception {
+        SecretKeySpec secretKey = createSecretKey();
+
+        String jwt = Jwts.builder()
                 .setSubject(username)
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, secretKey) 
+                .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
-        
-        String token = TOKEN_PREFIX + " " + JWT;
+
+        String token = TOKEN_PREFIX + jwt;
         response.addHeader(HEADER_STRING, token);
-        
+
         ApplicationContextLoad.getApplicationContext()
-						        .getBean(UsuarioRepository.class)
-						        .atualizarTokenUser(JWT, username);
-        
+                .getBean(UsuarioRepository.class)
+                .atualizarTokenUser(jwt, username);
+
+        inserirJwtCookie(jwt, response);
         liberacaoCors(response);
-        response.getWriter().write("{\"Authorization\": \"" + token + "\"}");
+
+        // response.setContentType("application/json");
+        // response.getWriter().write("{\"Authorization\": \"" + token + "\"}");
+        return token;
     }
 
     // Retorna o usuário validado com token ou, caso não seja válido, retorna null
@@ -141,6 +145,34 @@ public class JWTTokenAutenticacaoService {
         // Não autorizado
         return null;
     }
+
+
+    private void inserirJwtCookie(String jwt, HttpServletResponse response) {
+        Cookie cookie = new Cookie("access_token", jwt);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); 
+        cookie.setPath("/syncdb");
+        cookie.setMaxAge(3600); // Expiração de 1 hora
+        
+        response.addCookie(cookie);  
+    }
+
+    private String obterTokenCookie(HttpServletRequest request)
+    {
+
+        if (request.getCookies() != null)
+        {
+            for (Cookie cookie : request.getCookies())
+            {
+                if ("access_token".equals(cookie.getName()))
+                {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
     
 	private void liberacaoCors(HttpServletResponse response)
 	{
