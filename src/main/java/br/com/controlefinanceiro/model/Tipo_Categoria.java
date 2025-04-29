@@ -21,6 +21,10 @@ public class Tipo_Categoria {
 	@Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE,  generator = "categoria_seq")
 	private Long id_tipocategoria;
+
+	@NotBlank(message = "Coluna 'cd_tipocategoria' é obrigatorio!")
+	@Column(unique = true, nullable = false)
+	private String cd_tipocategoria;
 	
 	@NotBlank(message = "Coluna 'nm_tipocategoria' é obrigatorio!")
 	@Column(unique = true, nullable = false)
@@ -32,6 +36,14 @@ public class Tipo_Categoria {
 
 	public void setId_tipocategoria(Long id_tipocategoria) {
 		this.id_tipocategoria = id_tipocategoria;
+	}
+
+	public String getCd_tipocategoria() {
+		return cd_tipocategoria;
+	}
+	
+	public void setCd_tipocategoria(String cd_tipocategoria) {
+		this.cd_tipocategoria = cd_tipocategoria;
 	}
 
 	public String getNm_tipocategoria() {
