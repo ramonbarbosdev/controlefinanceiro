@@ -40,9 +40,10 @@ import br.com.controlefinanceiro.model.Tipo_Conta;
 import br.com.controlefinanceiro.model.Tipo_Operacao;
 import br.com.controlefinanceiro.model.Usuario;
 import br.com.controlefinanceiro.repository.ContaRepository;
+import br.com.controlefinanceiro.repository.LancamentoRepository;
 import br.com.controlefinanceiro.repository.TipoCategoriaRepository;
 import br.com.controlefinanceiro.repository.TipoContaRepository;
-import br.com.controlefinanceiro.service.SequenciaService;
+import br.com.controlefinanceiro.service.ContaService;
 import br.com.controlefinanceiro.service.Utils;
 import br.com.controlefinanceiro.service.ValidacaoService;
 import ch.qos.logback.core.model.Model;
@@ -60,11 +61,28 @@ public class ContaController extends BaseController<Conta, ContaDTO, Long>
 	@Autowired
 	private ContaRepository objetoRepository;
 
+	@Autowired
+	private ContaService contaService;
+	
+
 	public ContaController(CrudRepository<Conta, Long> repository)
 	{
-			super(repository);
+		super(repository);
 			
 	}
+
+	@PostMapping(value = "/", produces = "application/json")
+    public ResponseEntity<?> cadastrar(@RequestBody Conta objeto) 
+    {	
+		Long status = objeto.getId_statusconta();
+		Long id_conta = objeto.getId_conta();
+
+		contaService.validarCadastro(id_conta, status);
+
+        Conta objetoSalvo = repository.save(objeto);
+    
+        return new ResponseEntity<>(objetoSalvo, HttpStatus.CREATED);
+    }
 	
     @GetMapping(value = "/sequencia", produces = "application/json")
     public ResponseEntity<?> obterSequencia()

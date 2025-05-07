@@ -44,7 +44,6 @@ import br.com.controlefinanceiro.repository.ContaRepository;
 import br.com.controlefinanceiro.repository.MetodoPagamentoRepository;
 import br.com.controlefinanceiro.repository.TipoCategoriaRepository;
 import br.com.controlefinanceiro.repository.TipoContaRepository;
-import br.com.controlefinanceiro.service.SequenciaService;
 import br.com.controlefinanceiro.service.Utils;
 import br.com.controlefinanceiro.service.ValidacaoService;
 import ch.qos.logback.core.model.Model;
