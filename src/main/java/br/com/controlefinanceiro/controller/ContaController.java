@@ -77,7 +77,8 @@ public class ContaController extends BaseController<Conta, ContaDTO, Long>
 		Long status = objeto.getId_statusconta();
 		Long id_conta = objeto.getId_conta();
 
-		contaService.validarCadastro(id_conta, status);
+		ResponseEntity<?> validacao = contaService.validarCadastro(id_conta, status);
+		if (validacao != null) return validacao;
 
         Conta objetoSalvo = repository.save(objeto);
     

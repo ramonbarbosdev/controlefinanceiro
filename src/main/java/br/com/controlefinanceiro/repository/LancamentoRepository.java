@@ -14,4 +14,7 @@ public interface LancamentoRepository  extends CrudRepository<Lancamento, Long> 
     @Query(value = "SELECT CASE WHEN MAX(c.cd_lancamento) IS NULL THEN '0' ELSE MAX(c.cd_lancamento) END FROM Lancamento c", nativeQuery = true)
     Long obterSequencial();
 
+    @Query(value = "SELECT c  FROM Lancamento c WHERE c.id_conta = ?1")
+    Lancamento buscarContaPorId(Long id_conta);
+
 }
