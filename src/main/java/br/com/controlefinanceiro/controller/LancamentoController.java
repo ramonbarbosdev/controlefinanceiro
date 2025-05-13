@@ -27,7 +27,9 @@ import br.com.controlefinanceiro.service.LancamentoService;
 import br.com.controlefinanceiro.service.Utils;
 import jakarta.annotation.PostConstruct;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,9 +57,41 @@ public class LancamentoController extends BaseController<Lancamento, LancamentoD
     }
 
   
+  @GetMapping(value = "/", produces = "application/json")
+    public ResponseEntity<List<?>> obterTodos() 
+    {
+        List<Lancamento> entidades = (List<Lancamento>) repository.findAll();
+
+        List<Lancamento> comItens = new ArrayList<>();
+
+        for (Lancamento lancamento : entidades)
+        {
+            try {
+                if (lancamento.getItenslancamento() != null && !lancamento.getItenslancamento().isEmpty()) {
+                    comItens.add(lancamento);
+                }
+            } catch (Exception e) {
+                // Ignora erro ao acessar os itens
+            }
+        }
+
+        if (comItens.isEmpty())
+        {
+            throw new MensagemException("Nenhum lançamento com itens encontrados!");
+            //  return new ResponseEntity<>(comItens, HttpStatus.OK);
+        }
+        
+
+        if (entidades.isEmpty())
+        {
+            throw new MensagemException("Nenhum registro encontrada!");
+        }
+ 
+        return new ResponseEntity<>(entidades, HttpStatus.OK);
+    }
 
     @PostMapping(value = "/cadastrar/", produces = "application/json")
-    public ResponseEntity<Lancamento> criarLancamento(@RequestBody Lancamento objeto)
+    public ResponseEntity<Lancamento> cadastrar(@RequestBody Lancamento objeto)
 	{
         objeto.setVl_lancamento(0.0);
         lancamentoService.validacaoCadastrar(objeto);
