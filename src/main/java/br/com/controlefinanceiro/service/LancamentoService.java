@@ -14,7 +14,9 @@ import br.com.controlefinanceiro.model.Status_Lancamento;
 import br.com.controlefinanceiro.repository.CategoriaRepository;
 import br.com.controlefinanceiro.repository.ContaRepository;
 import br.com.controlefinanceiro.repository.ItemLancamentoRepository;
+import br.com.controlefinanceiro.repository.LancamentoRepository;
 import br.com.controlefinanceiro.repository.StatusLancamentoRepository;
+import jakarta.transaction.Transactional;
 
 
 
@@ -28,7 +30,54 @@ public class LancamentoService {
     private ContaRepository contaRepository;
 
     @Autowired
-    private StatusLancamentoRepository statusLancamentoRepository;;
+    private StatusLancamentoRepository statusLancamentoRepository;
+
+    @Autowired
+    private LancamentoRepository objetoRepository;
+
+    @Autowired
+    private ItemLancamentoRepository itemObjetoRepository;
+
+    @Autowired
+    private ItemLancamentoService itemObjetoService;
+
+    @Transactional
+    public Lancamento salvarItens(Lancamento objeto)
+    {
+        objeto.setVl_lancamento(0.0);
+        validacaoCadastrar(objeto);
+        objeto = objetoRepository.save(objeto);
+
+        Double vl_lancamento = 0.0;
+
+        List<Item_Lancamento> itens = objeto.getItenslancamento();
+
+        if(itens != null && itens.size() > 0)
+        {
+            for(Item_Lancamento item : itens)
+            {
+                item.setId_lancamento(objeto.getId_lancamento());
+                itemObjetoService.validacaoCadastrar(item, itens, objeto.getId_lancamento());
+                item = itemObjetoRepository.save(item);
+                vl_lancamento += item.getVl_movimento();
+            }
+        }
+
+        objeto.setVl_lancamento(vl_lancamento);
+        validarValorTotalItem(itens, vl_lancamento);
+        objeto = objetoRepository.save(objeto);
+
+        return objeto;
+    }
+
+
+    public Long excluir(Long id)
+    {
+        itemObjetoRepository.deleteByIdLancamento( id);
+        objetoRepository.deleteById(id);
+
+        return id;
+    }
 
     public void validacaoCadastrar(Lancamento objeto) throws RuntimeException
     {
@@ -62,7 +111,6 @@ public class LancamentoService {
     {
         Double vl_total = 0.0;
 
-      
         for(Item_Lancamento item : listaItens)
         {
             vl_total += item.getVl_movimento();
