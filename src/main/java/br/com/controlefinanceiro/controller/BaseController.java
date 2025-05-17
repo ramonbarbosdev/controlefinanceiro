@@ -48,10 +48,10 @@ public abstract  class  BaseController<T,D,ID> {
     {
         List<T> entidades = (List<T>) repository.findAll();
 
-        if (entidades.isEmpty())
-        {
-            throw new MensagemException("Nenhum registro encontrada!");
-        }
+        // if (entidades.isEmpty())
+        // {
+        //     throw new MensagemException("Nenhum registro encontrada!");
+        // }
  
         return new ResponseEntity<>(entidades, HttpStatus.OK);
     }
@@ -91,7 +91,7 @@ public abstract  class  BaseController<T,D,ID> {
 	{
         repository.deleteById((ID) id);
 			
-        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Registro deletado!\"}");
+        return ResponseEntity.status(HttpStatus.OK).body("{\"error\": \"Registro deletado!\"}");
 
 	}
 
